@@ -135,11 +135,9 @@ public class NotesManager : MonoBehaviour
     public List<float> SampleNT = new List<float>();
     [SerializeField] public List<int> SampleLN = new List<int>();
     [SerializeField] public List<GameObject> SampleObj = new List<GameObject>();
-    [SerializeField] public List<float> MiddleNT = new List<float>();
-    [SerializeField] public List<int> MiddleLN = new List<int>();
-    public List<GameObject> MandEObj = new List<GameObject>();//中間点と終点のオブジェクト
-    public List<GameObject> Quad = new List<GameObject>();
 
+    public List<GameObject> MandEObj = new List<GameObject>();//中間点と終点のオブジェクト
+  
 
 
     public List<GameObject> SrideObj = new List<GameObject>();
@@ -147,8 +145,8 @@ public class NotesManager : MonoBehaviour
 
 
     public List<float>[] LongSMNT { get; private set; }
-    public List<GameObject>[] QuadA { get; private set; }
-
+    [SerializeField] public List<GameObject>[] QuadA { get; private set; }
+    public List<float>[] LongMNT { get; private set; }
 
 
     [SerializeField] private float tapLag = 0;
@@ -288,10 +286,12 @@ public class NotesManager : MonoBehaviour
 
         LongSMNT = new List<float>[7];
         QuadA = new List<GameObject>[7];//new!
+        LongMNT = new List<float>[7];
         for (int i = 0; i < 7; i++)
         {
             LongSMNT[i] = new List<float>();
             QuadA[i] = new List<GameObject>();
+            LongMNT[i] = new List<float>();
         }
 
 
@@ -351,9 +351,8 @@ public class NotesManager : MonoBehaviour
 
                 float Middlekankaku = 60 / (container.bpm * (float)notesData.lpb);
                 float Middletime = Middlekankaku * notesData.num + container.offset / 44100 + tapLag / 100;
-                MiddleNT.Add(Middletime);
-                MiddleLN.Add(notesData.block);
-
+               
+                LongMNT[container.notes[L[a]].block].Add(Middletime);
                 
 
                 float Middle_z = Middletime * gManager.noteSpeed;
@@ -373,7 +372,7 @@ public class NotesManager : MonoBehaviour
 
                 lineObj.AddComponent<LongNotes>();//Quadにスクリプトを追加
 
-                Quad.Add(lineObj);//古い
+               
 
                 if(index == 0)
                 {
