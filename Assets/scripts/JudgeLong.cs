@@ -111,11 +111,11 @@ public class JudgeLong : MonoBehaviour
             }//notesManager.SampleNT.Count - 1 > -1
 
 
-            for(int i = 0; i < notesManager.LongMNT.Length; i++)
+            for(int i = 0; i < notesManager.LongMNT.Length; i++)//全てのレーンでミス判定のものがないか探す
             {
-                if (notesManager.LongMNT[i].Count > 0 && Time.time > notesManager.LongMNT[i][0] + 0.2f + gManager.StartTime)
+                if (notesManager.LongMNT[i].Count > 0 && Time.time > notesManager.LongMNT[i][0].notestime + 0.2f + gManager.StartTime)
                 {
-                    HandleMiss(i);
+                    HandleMiss(i, notesManager.LongMNT[i][0].lane);
                 }
             }
            
@@ -243,7 +243,7 @@ public class JudgeLong : MonoBehaviour
 
     }//Update
 
-    public void HandleMiss(int LaneIndex)
+    public void HandleMiss(int LaneIndex, int Qlane)
     {
         message(3);
 
@@ -254,7 +254,7 @@ public class JudgeLong : MonoBehaviour
         Debug.Log("Miss");
         gManager.miss++;
         gManager.combo = 0;
-        RemoveQuad(LaneIndex);
+        RemoveQuad(Qlane);//帯の始点のレーンを入れて正しい帯を削除
         //ミス
     }
 
@@ -268,23 +268,22 @@ public class JudgeLong : MonoBehaviour
         }
         else
         {
-            if (notesManager.SampleNT.Count - 1 > 0)//これいらないね
-            {
+           
                
                 if (notesManager.SampleLN[1] == lane)//同時押しに対応(2点タップまで)
                 {
                     
                     Judgement(GetABS(Time.time - (notesManager.SampleNT[1] + GManager.instance.StartTime)));
                 }
-            }
+            
         }
     }
 
     public void Check(int lane)//指を離す
     {
-        if (notesManager.LongMNT[lane].Count < 1) return;
+        if (notesManager.LongMNT[lane].Count < 1) return;//要素がなかったら帰る
        
-        MEjudgement(GetABS(Time.time - (notesManager.LongMNT[lane][0] + GManager.instance.StartTime)), lane);
+        MEjudgement(GetABS(Time.time - (notesManager.LongMNT[lane][0].notestime + GManager.instance.StartTime)), lane);//laneは帯の終点のレーン
        
     }
 
@@ -294,15 +293,17 @@ public class JudgeLong : MonoBehaviour
         if (notesManager.LongMNT[laneIndex].Count > 0)
         {
             
-            if (0.0250 >= GetABS(Time.time - (notesManager.LongMNT[laneIndex][0] + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
+            if (0.0250 >= GetABS(Time.time - (notesManager.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
             {
-                MEjudgement(0, laneIndex);
+                MEjudgement(0, laneIndex);//laneIndexは帯の終点のレーン
+                
+
                
             }
             
         }
-       
 
+        if (notesManager.LongMNT[laneIndex].Count > 1) return;
         if(notesManager.LongSMNT[laneIndex].Count > 0)
         {
             ChangeLayer(GetABS(Time.time - (notesManager.LongSMNT[laneIndex][0] + GManager.instance.StartTime)), laneIndex);
@@ -375,7 +376,7 @@ public class JudgeLong : MonoBehaviour
             gManager.perfect++;
             gManager.combo++;
             MEdeleteData(Index);
-            RemoveQuad(Index);
+            RemoveQuad(notesManager.LongMNT[Index][0].lane);
             return;
         }
         
@@ -389,7 +390,7 @@ public class JudgeLong : MonoBehaviour
             gManager.great++;
             gManager.combo++;
             MEdeleteData(Index);
-            RemoveQuad(Index);
+            RemoveQuad(notesManager.LongMNT[Index][0].lane);
             return;
         }
            
@@ -403,15 +404,15 @@ public class JudgeLong : MonoBehaviour
             gManager.bad++;
             gManager.combo = 0;
             MEdeleteData(Index);
-            RemoveQuad(Index);
+            RemoveQuad(notesManager.LongMNT[Index][0].lane);
             return;
                 
         }
         if(timeLag > 0.15)
         {
-            HandleMiss(Index);
-            notesManager.QuadA[Index][0].layer = 0;
-            RemoveQuad(Index);
+            notesManager.QuadA[notesManager.LongMNT[Index][0].lane][0].layer = 0;
+            HandleMiss(Index, notesManager.LongMNT[Index][0].lane);
+            RemoveQuad(notesManager.LongMNT[Index][0].lane);
         }
 
 
@@ -454,9 +455,8 @@ public class JudgeLong : MonoBehaviour
 
     public void MEdeleteData(int LaneIndex)
     {
-       
-
         if (notesManager.LongMNT[LaneIndex].Count < 1) return;
+
         notesManager.LongMNT[LaneIndex].RemoveAt(0);
        
        

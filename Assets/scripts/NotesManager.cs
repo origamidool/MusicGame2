@@ -24,6 +24,12 @@ public class Notegpt
     public Notegpt[] notes;
 }
 
+public class NoteInfo
+{
+    public int lane;
+    public float notestime;
+}
+
 
 
 public class NotesManager : MonoBehaviour
@@ -144,9 +150,9 @@ public class NotesManager : MonoBehaviour
 
 
 
-    public List<float>[] LongSMNT { get; private set; }
+    public List<float>[] LongSMNT { get; private set; }//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
     [SerializeField] public List<GameObject>[] QuadA { get; private set; }
-    public List<float>[] LongMNT { get; private set; }
+    public List<NoteInfo>[] LongMNT { get; private set; }//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
 
 
     [SerializeField] private float tapLag = 0;
@@ -286,12 +292,12 @@ public class NotesManager : MonoBehaviour
 
         LongSMNT = new List<float>[7];
         QuadA = new List<GameObject>[7];//new!
-        LongMNT = new List<float>[7];
+        LongMNT = new List<NoteInfo>[7];
         for (int i = 0; i < 7; i++)
         {
             LongSMNT[i] = new List<float>();
             QuadA[i] = new List<GameObject>();
-            LongMNT[i] = new List<float>();
+            LongMNT[i] = new List<NoteInfo>();
         }
 
 
@@ -318,14 +324,18 @@ public class NotesManager : MonoBehaviour
             
         }
 
-        for (int a = 0; a < L.Count; a++)
+        for (int a = 0; a < L.Count; a++)//ロングノーツ
         {
+            //始点を生成
+             
             float Samplekankaku = 60 / (container.bpm * (float)container.notes[L[a]].lpb);
             float SampleLtime = Samplekankaku * container.notes[L[a]].num + container.offset / 44100 + tapLag / 100;
 
             SampleNT.Add(SampleLtime);
-            SampleLN.Add(container.notes[L[a]].block);
-            LongSMNT[container.notes[L[a]].block].Add(SampleLtime);
+            SampleLN.Add(container.notes[L[a]].block);//始点判定用
+
+            LongSMNT[container.notes[L[a]].block].Add(SampleLtime);//帯レイヤー変更判定用 始点の時間をいれる
+       
 
             float Sample_z = SampleNT[L[a]] * gManager.noteSpeed;
             SampleObj.Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].block - 3, 0.55f, Sample_z), Quaternion.identity));
@@ -343,7 +353,7 @@ public class NotesManager : MonoBehaviour
 
             int index = -1;
 
-            foreach (Notegpt notesData in container.notes[L[a]].notes)
+            foreach (Notegpt notesData in container.notes[L[a]].notes)//中間点，終点を生成
             {
                 index += 1;
                 Vector3[] lowerVec3 = new Vector3[2];
@@ -352,7 +362,6 @@ public class NotesManager : MonoBehaviour
                 float Middlekankaku = 60 / (container.bpm * (float)notesData.lpb);
                 float Middletime = Middlekankaku * notesData.num + container.offset / 44100 + tapLag / 100;
                
-                LongMNT[container.notes[L[a]].block].Add(Middletime);
                 
 
                 float Middle_z = Middletime * gManager.noteSpeed;
@@ -376,15 +385,21 @@ public class NotesManager : MonoBehaviour
 
                 if(index == 0)
                 {
+                    LongMNT[notesData.block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].block });//中間点のレーンの1番目に1番目の中間点の時間，始点のレーンをいれる
                     QuadA[container.notes[L[a]].block].Add(lineObj);
                 }
                 if (index < container.notes[L[a]].notes.Length - 1)
                 {
-                    LongSMNT[notesData.block].Add(Middletime);
+                    LongSMNT[notesData.block].Add(Middletime);//中間点の時間をいれる
                     QuadA[notesData.block].Add(lineObj);
                 }
-                
+                if(index > 0)
+                {
+                    LongMNT[notesData.block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].notes[index - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
+                }
 
+
+               
 
                 Mesh mesh = new Mesh();
                 mesh.SetVertices(lineVerticesVec3);
