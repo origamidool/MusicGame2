@@ -415,7 +415,7 @@ public class JudgeLong : MonoBehaviour
     }
     public void ChangeLayer(float timeLag ,int laneindex)//帯を見切れるようにする
     {
-        if (notesManager.QuadA[laneindex].Count < 1) return;
+        if (notesManager.QuadA[laneindex].Count < 1) return;//無くても動作するはず
 
         if(timeLag <= 0.15)
         {
