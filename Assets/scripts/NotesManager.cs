@@ -391,7 +391,7 @@ public class NotesManager : MonoBehaviour
                 if (index < container.notes[L[a]].notes.Length - 1)
                 {
                     LongSMNT[notesData.block].Add(Middletime);//中間点の時間をいれる
-                    QuadA[notesData.block].Add(lineObj);
+                    QuadA[notesData.block].Add(lineObj);//間違ってる 0ではない、かつ終点ではない　にする
                 }
                 if(index > 0)
                 {
