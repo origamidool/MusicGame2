@@ -19,12 +19,8 @@ public class MusicManager : MonoBehaviour
     {
         GManager.instance.Start = false;
         songName = "Grievous Lady(Arcaea)";
-        audio = GetComponent<AudioSource>();
         criAtomSource = GetComponent<CriAtomSource>();//new!
-        Music = (AudioClip)Resources.Load("Musics/" + songName);
         played = false;
-        Debug.Log(Music);
-        
     }
 
     public void Update()
@@ -36,7 +32,6 @@ public class MusicManager : MonoBehaviour
     {
         gManager.Start = true;
         GManager.instance.StartTime = Time.time;
-        audio.PlayOneShot(Music);
         criAtomSource.cueName = songName;
         criAtomSource.Play(criAtomSource.cueName);
         played = true;

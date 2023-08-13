@@ -22,8 +22,7 @@ public class JudgeLong : MonoBehaviour
 
     public bool button = false;//多分関係無い
     public bool isHolding = false;
-    public int holdIndex;
-
+   
     public Camera raycastCamera;//メインカメラ
 
     void Start()
@@ -34,214 +33,213 @@ public class JudgeLong : MonoBehaviour
     void Update()
     {
         if (!gManager.Start) return;//ゲームスタート
-        
-            holdIndex = 0;
 
-            Ray Hray;
-            PointerEventData HpointerEventData;
-            List<RaycastResult> Hresults;//スタート時に作成
+        StartJudge();
+        MiddleJudge();
+        EndJudge(isHolding);
 
-            if (notesManager.SampleNT.Count > 0)//ノーツがあるなら
+
+        for(int i = 0; i < notesManager.LongMNT.Length; i++)//全てのレーンでミス判定のものがないか探す
+        {
+            if (notesManager.LongMNT[i].Count > 0 && Time.time > notesManager.LongMNT[i][0].notestime + 0.2f + gManager.StartTime)
             {
-                //ロングノーツの始点を判定
-                if (Input.GetMouseButtonDown(0))//タップ
+                HandleMiss(i, notesManager.LongMNT[i][0].lane);
+            }
+        }
+
+    }
+
+    public void StartJudge()
+    {
+        if (notesManager.SampleNT.Count > 0)//ノーツがあるなら
+        {
+            //ロングノーツの始点を判定
+            if (Input.GetMouseButtonDown(0))//タップ
+            {
+                Ray ray = raycastCamera.ScreenPointToRay(Input.mousePosition);
+
+                PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+                pointerEventData.position = Input.mousePosition;
+
+                List<RaycastResult> results = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(pointerEventData, results);
+
+                foreach (var result in results)
                 {
-                    Ray ray = raycastCamera.ScreenPointToRay(Input.mousePosition);
-
-                    PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
-                    pointerEventData.position = Input.mousePosition;
-
-                    List<RaycastResult> results = new List<RaycastResult>();
-                    EventSystem.current.RaycastAll(pointerEventData, results);
-
-                    foreach (var result in results)
+                    if (result.gameObject != null)//当たったオブジェクトがnullじゃなかったら
                     {
-                        if (result.gameObject != null)//当たったオブジェクトがnullじゃなかったら
+                        if (result.gameObject.CompareTag(light.cubeTag0))//左端のレーン 格レーンについたタグ(canvasのbutton（透明）についてる)に当たったら
                         {
-                            if (result.gameObject.CompareTag(light.cubeTag0))//左端のレーン 格レーンについたタグ(canvasのbutton（透明）についてる)に当たったら
-                            {
-                                JCheck(0);//レーンが正しいか判断する関数
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag1))
-                            {
-                                JCheck(1);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag2))
-                            {
-                                JCheck(2);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag3))
-                            {
-                                JCheck(3);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag4))
-                            {
-                                JCheck(4);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag5))
-                            {
-                                JCheck(5);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag6))//右端
-                            {
-                                JCheck(6);
-                            }
+                            JCheck(0);//レーンが正しいか判断する関数
                         }
-
+                        if (result.gameObject.CompareTag(light.cubeTag1))
+                        {
+                            JCheck(1);
+                        }
+                        if (result.gameObject.CompareTag(light.cubeTag2))
+                        {
+                            JCheck(2);
+                        }
+                        if (result.gameObject.CompareTag(light.cubeTag3))
+                        {
+                            JCheck(3);
+                        }
+                        if (result.gameObject.CompareTag(light.cubeTag4))
+                        {
+                            JCheck(4);
+                        }
+                        if (result.gameObject.CompareTag(light.cubeTag5))
+                        {
+                            JCheck(5);
+                        }
+                        if (result.gameObject.CompareTag(light.cubeTag6))//右端
+                        {
+                            JCheck(6);
+                        }
                     }
 
-
-                }
-                if (notesManager.SampleNT.Count - 1 > -1)
-                {
-                    if (Time.time > notesManager.SampleNT[0] + 0.2f + gManager.StartTime)//本来ノーツをたたくべき時間から0.2秒たっても入力がなかった場合
-                    {
-                        message(3);
-                        RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-                        gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
-                        deleteData();
-                        Debug.Log("Miss");
-                        gManager.miss++;
-                        gManager.combo = 0;
-                        //ミス
-                    }
                 }
 
 
-            }//notesManager.SampleNT.Count - 1 > -1
-
-
-            for(int i = 0; i < notesManager.LongMNT.Length; i++)//全てのレーンでミス判定のものがないか探す
+            }
+            if (notesManager.SampleNT.Count > 0)
             {
-                if (notesManager.LongMNT[i].Count > 0 && Time.time > notesManager.LongMNT[i][0].notestime + 0.2f + gManager.StartTime)
+                if (Time.time > notesManager.SampleNT[0] + 0.2f + gManager.StartTime)//本来ノーツをたたくべき時間から0.2秒たっても入力がなかった場合
                 {
-                    HandleMiss(i, notesManager.LongMNT[i][0].lane);
+                    message(3);
+                    RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
+                    gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
+                    deleteData();
+                    Debug.Log("Miss");
+                    gManager.miss++;
+                    gManager.combo = 0;
+                    //ミス
                 }
             }
-           
-                if (Input.GetMouseButtonUp(0))//指を離す
+
+
+        }//notesManager.SampleNT.Count - 1 > -1
+    }
+
+    public void MiddleJudge()
+    {
+        if (Input.GetMouseButtonUp(0))//指を離す
+        {
+            Ray ray = raycastCamera.ScreenPointToRay(Input.mousePosition);
+
+            PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+            pointerEventData.position = Input.mousePosition;
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerEventData, results);
+
+            foreach (var result in results)
+            {
+                if (result.gameObject != null)
                 {
-                    Ray ray = raycastCamera.ScreenPointToRay(Input.mousePosition);
-
-                    PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
-                    pointerEventData.position = Input.mousePosition;
-
-                    List<RaycastResult> results = new List<RaycastResult>();
-                    EventSystem.current.RaycastAll(pointerEventData, results);
-
-                    foreach (var result in results)
+                    if (result.gameObject.CompareTag(light.cubeTag0))//0レーン
                     {
-                        if (result.gameObject != null)
-                        {
-                            if (result.gameObject.CompareTag(light.cubeTag0))//0レーン
-                            {
-                                Check(0);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
-                            {
-                                Check(1);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
-                            {
-                                Check(2);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
-                            {
-                                Check(3);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
-                            {
-                                Check(4);
-                               
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
-                            {
-                                Check(5);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
-                            {
-                                Check(6);
-                            }
-                        }
+                        Check(0);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
+                    {
+                        Check(1);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
+                    {
+                        Check(2);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
+                    {
+                        Check(3);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
+                    {
+                        Check(4);
 
                     }
-
-
-
-
-
-                }//(Input.GetMouseButtonUp(0))//指を離す
-
-                
-
-                if (Input.GetMouseButtonDown(0))//指が触れている間ずっと
-                {
-                    isHolding = true;
-                   
-
-                }
-                else if(Input.GetMouseButtonUp(0))
-                {
-                    isHolding = false;
-                   
-                }
-
-                if (isHolding)//指が触れている
-                {
-                   
-                    Hray = raycastCamera.ScreenPointToRay(Input.mousePosition);
-
-                    HpointerEventData = new PointerEventData(EventSystem.current);
-                    HpointerEventData.position = Input.mousePosition;
-
-                    Hresults = new List<RaycastResult>();
-                    EventSystem.current.RaycastAll(HpointerEventData, Hresults);
-
-                    foreach (var result in Hresults)
+                    if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
                     {
-                        if (result.gameObject != null)
-                        {
-                            if (result.gameObject.CompareTag(light.cubeTag0))//0レーン
-                            {
-                                CheckLaneHit(0);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
-                            {
-                                CheckLaneHit(1);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
-                            {
-                                CheckLaneHit(2);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
-                            {
-                                CheckLaneHit(3);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
-                            {
-                                CheckLaneHit(4);
-
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
-                            {
-                                CheckLaneHit(5);
-                            }
-                            if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
-                            {
-                                CheckLaneHit(6);
-
-                                
-                            }
-                        }
+                        Check(5);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
+                    {
+                        Check(6);
                     }
                 }
+            }
+        }//(Input.GetMouseButtonUp(0))//指を離す
+    }
+    public void EndJudge(bool isHolding)
+    {
+        Ray Hray;
+        PointerEventData HpointerEventData;
+        List<RaycastResult> Hresults;//スタート時に作成
 
-           
-          
-        
-       
+        if (Input.GetMouseButtonDown(0))//指が触れている間ずっと
+        {
+            isHolding = true;
 
-    }//Update
+
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            isHolding = false;
+
+        }
+
+        if (isHolding)//指が触れている
+        {
+
+            Hray = raycastCamera.ScreenPointToRay(Input.mousePosition);
+
+            HpointerEventData = new PointerEventData(EventSystem.current);
+            HpointerEventData.position = Input.mousePosition;
+
+            Hresults = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(HpointerEventData, Hresults);
+
+            foreach (var result in Hresults)
+            {
+                if (result.gameObject != null)
+                {
+                    if (result.gameObject.CompareTag(light.cubeTag0))//0レーン
+                    {
+                        CheckLaneHit(0);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
+                    {
+                        CheckLaneHit(1);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
+                    {
+                        CheckLaneHit(2);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
+                    {
+                        CheckLaneHit(3);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
+                    {
+                        CheckLaneHit(4);
+
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
+                    {
+                        CheckLaneHit(5);
+                    }
+                    if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
+                    {
+                        CheckLaneHit(6);
+
+
+                    }
+                }
+            }
+        }
+    }
+
+
 
     public void HandleMiss(int LaneIndex, int Qlane)
     {
@@ -303,7 +301,7 @@ public class JudgeLong : MonoBehaviour
             
         }
 
-        if (notesManager.LongMNT[laneIndex].Count > 1) return;
+        if (notesManager.LongMNT[laneIndex].Count < 1) return;
         if(notesManager.LongSMNT[laneIndex].Count > 0)
         {
             ChangeLayer(GetABS(Time.time - (notesManager.LongSMNT[laneIndex][0] + GManager.instance.StartTime)), laneIndex);
@@ -375,8 +373,9 @@ public class JudgeLong : MonoBehaviour
            
             gManager.perfect++;
             gManager.combo++;
-            MEdeleteData(Index);
             RemoveQuad(notesManager.LongMNT[Index][0].lane);
+            MEdeleteData(Index);
+            
             return;
         }
         
@@ -389,8 +388,9 @@ public class JudgeLong : MonoBehaviour
            
             gManager.great++;
             gManager.combo++;
-            MEdeleteData(Index);
             RemoveQuad(notesManager.LongMNT[Index][0].lane);
+            MEdeleteData(Index);
+            
             return;
         }
            
@@ -403,17 +403,13 @@ public class JudgeLong : MonoBehaviour
             
             gManager.bad++;
             gManager.combo = 0;
-            MEdeleteData(Index);
             RemoveQuad(notesManager.LongMNT[Index][0].lane);
+            MEdeleteData(Index);
+            
             return;
                 
         }
-        if(timeLag > 0.15)
-        {
-            notesManager.QuadA[notesManager.LongMNT[Index][0].lane][0].layer = 0;
-            HandleMiss(Index, notesManager.LongMNT[Index][0].lane);
-            RemoveQuad(notesManager.LongMNT[Index][0].lane);
-        }
+       
 
 
     }
