@@ -75,7 +75,9 @@ public class NotesManager : MonoBehaviour
 
     public List<float> LongNT = new List<float>();
     public List<int> LongLN = new List<int>();
-   
+    [SerializeField] public List<float> LongAllNT = new List<float>();
+    [SerializeField] public List<int> LongAllLN = new List<int>();
+
     public List<int> N = new List<int>();
     public List<int> L = new List<int>();
     public List<int> S = new List<int>();
@@ -148,9 +150,9 @@ public class NotesManager : MonoBehaviour
 
 
 
-    [SerializeField] public List<float>[] LongSMNT { get; private set; }//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
+    public List<float>[] LongSMNT { get; private set; }//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
     [SerializeField] public List<GameObject>[] QuadA { get; private set; }
-    [SerializeField] public List<NoteInfo>[] LongMNT { get; private set; }//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
+    public List<NoteInfo>[] LongMNT { get; private set; }//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
 
 
     [SerializeField] private float tapLag = 0;
@@ -389,15 +391,12 @@ public class NotesManager : MonoBehaviour
                 if (index < container.notes[L[a]].notes.Length - 1)
                 {
                     LongSMNT[notesData.block].Add(Middletime);//中間点の時間をいれる
+                    QuadA[notesData.block].Add(lineObj);//間違ってる 0ではない、かつ終点ではない　にする
                 }
                 if(index > 0)
                 {
                     LongMNT[notesData.block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].notes[index - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
-                    if(index < container.notes[L[a]].notes.Length - 1)
-                    {
-                        QuadA[notesData.block].Add(lineObj);
-                    }
-                }//これにより，帯の終点がすぎた時，判定された時に帯の始点のレーンを取得できる(正しい帯を指定できる)
+                }
 
 
                
