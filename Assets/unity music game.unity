@@ -871,9 +871,9 @@ Camera:
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.08214626
+    x: 0.09480846
     y: 0
-    width: 0.8357075
+    width: 0.8103831
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -1102,7 +1102,7 @@ MonoBehaviour:
   _use3dPositioning: 1
   _freezeOrientation: 0
   _loop: 0
-  _volume: 0.034
+  _volume: 0
   _pitch: 0
   _androidUseLowLatencyVoicePool: 0
   need_to_player_update_all: 1
@@ -1290,8 +1290,6 @@ MonoBehaviour:
   NotesObj: []
   LongNT: []
   LongLN: 
-  LongAllNT: []
-  LongAllLN: 
   N: 
   L: 
   S: 
@@ -1325,10 +1323,7 @@ MonoBehaviour:
   SampleNT: []
   SampleLN: 
   SampleObj: []
-  MiddleNT: []
-  MiddleLN: 
   MandEObj: []
-  Quad: []
   SrideObj: []
   tapLag: -10
   type1: 
@@ -2558,7 +2553,7 @@ MonoBehaviour:
   ratioScore: 0
   maxScore: 0
   songID: 0
-  noteSpeed: 14
+  noteSpeed: 15
   Start: 0
   StartTime: 0
   combo: 0
@@ -2729,6 +2724,8 @@ MonoBehaviour:
   notesManager: {fileID: 495515116}
   light: {fileID: 396271391}
   RawScore: 0
+  rayInterval: 0.02
+  lastTouchtime: -1
   longhitSound: {fileID: 8300000, guid: eb0ce1892b8d844c98f89958a75a5157, type: 3}
   MessageObj:
   - {fileID: 2466884778861069382, guid: 7e1da4e24baf74a18bb23de15a236d84, type: 3}
@@ -2737,7 +2734,6 @@ MonoBehaviour:
   - {fileID: 3727401635588405163, guid: da482fe4d7a514ce3b4393209a3c1952, type: 3}
   button: 0
   isHolding: 0
-  holdIndex: 0
   raycastCamera: {fileID: 451994070}
 --- !u!4 &994608863
 Transform:
@@ -5314,9 +5310,9 @@ Camera:
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.08214626
+    x: 0.09480846
     y: 0
-    width: 0.8357075
+    width: 0.8103831
     height: 1
   near clip plane: 4.15
   far clip plane: 1000

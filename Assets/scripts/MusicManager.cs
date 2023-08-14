@@ -35,7 +35,7 @@ public class MusicManager : MonoBehaviour
         criAtomSource.cueName = songName;
         criAtomSource.Play(criAtomSource.cueName);
         played = true;
-        Debug.Log("はい");
+        
         targetObj.SetActive(false);
     }
 }

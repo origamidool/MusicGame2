@@ -16,6 +16,8 @@ public class JudgeLong : MonoBehaviour
     public Light light;
 
     public float RawScore;
+    public float rayInterval = 0.02f;
+    public float lastTouchtime = -1.0f;
 
     [SerializeField] AudioClip longhitSound;
     [SerializeField] private GameObject[] MessageObj;//プレイヤーに判定を伝えるゲームオブジェクト
@@ -34,9 +36,21 @@ public class JudgeLong : MonoBehaviour
     {
         if (!gManager.Start) return;//ゲームスタート
 
+        if (Input.GetMouseButtonDown(0))//指が触れている間ずっと
+        {
+            isHolding = true;
+
+
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            isHolding = false;
+
+        }
+
         StartJudge();
-        MiddleJudge();
-        EndJudge(isHolding);
+        MiddleJudge(isHolding);
+        EndJudge();
 
 
         for(int i = 0; i < notesManager.LongMNT.Length; i++)//全てのレーンでミス判定のものがないか探す
@@ -45,8 +59,76 @@ public class JudgeLong : MonoBehaviour
             {
                 HandleMiss(i, notesManager.LongMNT[i][0].lane);
             }
+           
         }
+        for(int i = 0; i < notesManager.LongSMNT.Length; i++)
+        {
+            if (notesManager.LongSMNT[i].Count > 0 && 0.002 > Time.time - notesManager.LongSMNT[i][0])
+            {
+                RemoveQuad(i);
+            }
+        }
+       
+        if(isHolding)
+        {
+            if (Time.time - lastTouchtime >= rayInterval)
+            {
+                lastTouchtime = Time.time;
+                TouchingHold();
+            }
+        }
+        
+    }
 
+   
+
+
+    private void TouchingHold()
+    {
+           
+            Ray ray = raycastCamera.ScreenPointToRay(Input.mousePosition);
+
+            PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+            pointerEventData.position = Input.mousePosition;
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerEventData, results);
+
+        foreach (var result in results)
+        {
+            if (result.gameObject == null) return;//当たったオブジェクトがnullじゃなかったら
+
+            if (result.gameObject.CompareTag(light.cubeTag0))//左端のレーン 格レーンについたタグ(canvasのbutton（透明）についてる)に当たったら
+            {
+                CheckLayer(0);
+            }
+            if (result.gameObject.CompareTag(light.cubeTag1))
+            {
+                CheckLayer(1);
+            }
+            if (result.gameObject.CompareTag(light.cubeTag2))
+            {
+                CheckLayer(2);
+            }
+            if (result.gameObject.CompareTag(light.cubeTag3))
+            {
+                CheckLayer(3);
+            }
+            if (result.gameObject.CompareTag(light.cubeTag4))
+            {
+                CheckLayer(4);
+            }
+            if (result.gameObject.CompareTag(light.cubeTag5))
+            {
+                CheckLayer(5);
+            }
+            if (result.gameObject.CompareTag(light.cubeTag6))//右端
+            {
+                CheckLayer(6);
+            }
+        }
+        
+       
     }
 
     public void StartJudge()
@@ -121,7 +203,7 @@ public class JudgeLong : MonoBehaviour
         }//notesManager.SampleNT.Count - 1 > -1
     }
 
-    public void MiddleJudge()
+    public void EndJudge()
     {
         if (Input.GetMouseButtonUp(0))//指を離す
         {
@@ -170,23 +252,13 @@ public class JudgeLong : MonoBehaviour
             }
         }//(Input.GetMouseButtonUp(0))//指を離す
     }
-    public void EndJudge(bool isHolding)
+    public void MiddleJudge(bool isHolding)
     {
         Ray Hray;
         PointerEventData HpointerEventData;
         List<RaycastResult> Hresults;//スタート時に作成
 
-        if (Input.GetMouseButtonDown(0))//指が触れている間ずっと
-        {
-            isHolding = true;
-
-
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
-            isHolding = false;
-
-        }
+        
 
         if (isHolding)//指が触れている
         {
@@ -241,6 +313,8 @@ public class JudgeLong : MonoBehaviour
 
 
 
+
+
     public void HandleMiss(int LaneIndex, int Qlane)
     {
         message(3);
@@ -252,7 +326,7 @@ public class JudgeLong : MonoBehaviour
         Debug.Log("Miss");
         gManager.miss++;
         gManager.combo = 0;
-        RemoveQuad(Qlane);//帯の始点のレーンを入れて正しい帯を削除
+        
         //ミス
     }
 
@@ -261,13 +335,10 @@ public class JudgeLong : MonoBehaviour
     {
         if (notesManager.SampleLN[0] == lane)//レーンがあってる
         {
-           
             Judgement(GetABS(Time.time - (notesManager.SampleNT[0] + GManager.instance.StartTime)));//押された時間と，叩くべき時間(以下Ptim)
         }
         else
         {
-           
-               
                 if (notesManager.SampleLN[1] == lane)//同時押しに対応(2点タップまで)
                 {
                     
@@ -294,21 +365,17 @@ public class JudgeLong : MonoBehaviour
             if (0.0250 >= GetABS(Time.time - (notesManager.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
             {
                 MEjudgement(0, laneIndex);//laneIndexは帯の終点のレーン
-                
-
-               
             }
             
         }
 
-        if (notesManager.LongMNT[laneIndex].Count < 1) return;
-        if(notesManager.LongSMNT[laneIndex].Count > 0)
+    }
+    public void CheckLayer(int laneIndex)
+    {
+        if (notesManager.LongSMNT[laneIndex].Count > 0)
         {
             ChangeLayer(GetABS(Time.time - (notesManager.LongSMNT[laneIndex][0] + GManager.instance.StartTime)), laneIndex);
         }
-
-       
-
     }
     
 
@@ -373,7 +440,7 @@ public class JudgeLong : MonoBehaviour
            
             gManager.perfect++;
             gManager.combo++;
-            RemoveQuad(notesManager.LongMNT[Index][0].lane);
+            
             MEdeleteData(Index);
             
             return;
@@ -388,7 +455,7 @@ public class JudgeLong : MonoBehaviour
            
             gManager.great++;
             gManager.combo++;
-            RemoveQuad(notesManager.LongMNT[Index][0].lane);
+           
             MEdeleteData(Index);
             
             return;
@@ -403,7 +470,7 @@ public class JudgeLong : MonoBehaviour
             
             gManager.bad++;
             gManager.combo = 0;
-            RemoveQuad(notesManager.LongMNT[Index][0].lane);
+            
             MEdeleteData(Index);
             
             return;
@@ -415,12 +482,10 @@ public class JudgeLong : MonoBehaviour
     }
     public void ChangeLayer(float timeLag ,int laneindex)//帯を見切れるようにする
     {
-        if (notesManager.QuadA[laneindex].Count < 1) return;
-
         if(timeLag <= 0.15)
         {
             notesManager.QuadA[laneindex][0].layer = 3;
-            notesManager.LongSMNT[laneindex].RemoveAt(0);
+            RemoveQuad(laneindex);
         }
     }
 
@@ -462,10 +527,12 @@ public class JudgeLong : MonoBehaviour
 
     public void RemoveQuad(int LaneIndex)
     {
-        if (notesManager.QuadA[LaneIndex].Count > 0)
+        if(notesManager.QuadA[LaneIndex].Count > 0)
         {
             notesManager.QuadA[LaneIndex].RemoveAt(0);
+            notesManager.LongSMNT[LaneIndex].RemoveAt(0);
         }
+        
     }
 
     void message(int judge)//判定を表示する
