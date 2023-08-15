@@ -63,46 +63,17 @@ public class JudgeLong : MonoBehaviour
         }
         for(int i = 0; i < notesManager.LongSMNT.Length; i++)
         {
-            if (notesManager.LongSMNT[i].Count > 0 && 0.002 > Time.time - notesManager.LongSMNT[i][0])
+            if (notesManager.LongSMNT[i].Count > 0 && Time.time > notesManager.LongSMNT[i][0] + 0.2f + gManager.StartTime)
             {
-                RemoveQuad(i);
+                DeleteQuad(i);
             }
         }
        
-        if(isHolding)
-        {
-            if (Time.time - lastTouchtime >= rayInterval)
-            {
-                lastTouchtime = Time.time;
-               
-            }
-        }
+        
         
     }
 
-    public void ProcessTouchInput()
-    {
-        for(int i = 0; i < Input.touchCount; i++)
-        {
-            Touch touch = Input.GetTouch(i);
-
-            if (touch.phase == TouchPhase.Began)
-            {
-                Ray ray = raycastCamera.ScreenPointToRay(Input.mousePosition);
-
-                PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
-                pointerEventData.position = Input.mousePosition;
-
-                List<RaycastResult> results = new List<RaycastResult>();
-                EventSystem.current.RaycastAll(pointerEventData, results);
-
-                foreach (var result in results)
-                {
-
-                }
-            }
-        }
-    }
+    
 
 
     
@@ -283,6 +254,7 @@ public class JudgeLong : MonoBehaviour
 
                     }
                 }
+                
             }
         }
     }
@@ -509,6 +481,12 @@ public class JudgeLong : MonoBehaviour
             notesManager.LongSMNT[LaneIndex].RemoveAt(0);
         }
         
+    }
+    public void DeleteQuad(int LaneIndex)//帯の始点すら触られなかったらその帯を削除　始点は別で削除される
+    {
+        notesManager.QuadA[LaneIndex][0].SetActive(false);
+        notesManager.QuadA[LaneIndex].RemoveAt(0);
+        notesManager.LongSMNT[LaneIndex].RemoveAt(0);
     }
 
     void message(int judge)//判定を表示する

@@ -152,6 +152,7 @@ public class NotesManager : MonoBehaviour
     [SerializeField] public List<GameObject>[] QuadA { get; private set; }
     [SerializeField] public List<NoteInfo>[] LongMNT { get; private set; }//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
 
+    public List<GameObject>[] StartObj { get; private set; }
 
     [SerializeField] private float tapLag = 0;
 
@@ -291,11 +292,13 @@ public class NotesManager : MonoBehaviour
         LongSMNT = new List<float>[7];
         QuadA = new List<GameObject>[7];//new!
         LongMNT = new List<NoteInfo>[7];
+        StartObj = new List<GameObject>[7];
         for (int i = 0; i < 7; i++)
         {
             LongSMNT[i] = new List<float>();
             QuadA[i] = new List<GameObject>();
             LongMNT[i] = new List<NoteInfo>();
+            StartObj[i] = new List<GameObject>();
         }
 
 
@@ -378,6 +381,8 @@ public class NotesManager : MonoBehaviour
                 GameObject lineObj = GameObject.CreatePrimitive(PrimitiveType.Quad);
 
                 lineObj.AddComponent<LongNotes>();//Quadにスクリプトを追加
+                lineObj.transform.parent = SampleObj[a].transform;//始点の子にする
+               
 
                
 
@@ -389,10 +394,8 @@ public class NotesManager : MonoBehaviour
                 if (index < container.notes[L[a]].notes.Length - 1)
                 {
                     LongSMNT[notesData.block].Add(Middletime);//中間点の時間をいれる
-<<<<<<< HEAD
-=======
                     QuadA[notesData.block].Add(lineObj);
->>>>>>> parent of 87e8196 (Update NotesManager.cs)
+
                 }
                 if(index > 0)
                 {
