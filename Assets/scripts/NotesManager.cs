@@ -29,6 +29,11 @@ public class NoteInfo
     public int lane;
     public float notestime;
 }
+public class QuadInfo
+{
+    public float endtime;
+    public GameObject Quad;
+}
 
 
 
@@ -148,9 +153,11 @@ public class NotesManager : MonoBehaviour
 
 
 
-    [SerializeField] public List<float>[] LongSMNT { get; private set; }//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
-    [SerializeField] public List<GameObject>[] QuadA { get; private set; }
-    [SerializeField] public List<NoteInfo>[] LongMNT { get; private set; }//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
+    public List<float>[] LongSMNT { get; private set; }//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
+    public List<QuadInfo>[] QuadA { get; private set; }
+    public List<NoteInfo>[] LongMNT { get; private set; }//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
+    public List<float>[] StartL { get; private set; }//始点のノーツタイム
+
 
     public List<GameObject>[] StartObj { get; private set; }
 
@@ -290,15 +297,17 @@ public class NotesManager : MonoBehaviour
         }
 
         LongSMNT = new List<float>[7];
-        QuadA = new List<GameObject>[7];//new!
+        QuadA = new List<QuadInfo>[7];//new!
         LongMNT = new List<NoteInfo>[7];
         StartObj = new List<GameObject>[7];
+        StartL = new List<float>[7];
         for (int i = 0; i < 7; i++)
         {
             LongSMNT[i] = new List<float>();
-            QuadA[i] = new List<GameObject>();
+            QuadA[i] = new List<QuadInfo>();
             LongMNT[i] = new List<NoteInfo>();
             StartObj[i] = new List<GameObject>();
+            StartL[i] = new List<float>();
         }
 
 
@@ -332,13 +341,13 @@ public class NotesManager : MonoBehaviour
             float Samplekankaku = 60 / (container.bpm * (float)container.notes[L[a]].lpb);
             float SampleLtime = Samplekankaku * container.notes[L[a]].num + container.offset / 44100 + tapLag / 100;
 
-            SampleNT.Add(SampleLtime);
-            SampleLN.Add(container.notes[L[a]].block);//始点判定用
+            
+            StartL[container.notes[L[a]].block].Add(SampleLtime);
 
             LongSMNT[container.notes[L[a]].block].Add(SampleLtime);//帯レイヤー変更判定用 始点の時間をいれる
        
 
-            float Sample_z = SampleNT[L[a]] * gManager.noteSpeed;
+            float Sample_z = SampleLtime * gManager.noteSpeed;
             SampleObj.Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].block - 3, 0.55f, Sample_z), Quaternion.identity));
 
             Vector3[] upperVec3 = new Vector3[2];
@@ -352,24 +361,27 @@ public class NotesManager : MonoBehaviour
 
             noteNum += container.notes[L[a]].notes.Length;
 
+            
+
+
             int index = -1;
 
-            foreach (Notegpt notesData in container.notes[L[a]].notes)//中間点，終点を生成
+            for (int i = 0; i < container.notes[L[a]].notes.Length; i++)//中間点，終点を生成
             {
                 index += 1;
                 Vector3[] lowerVec3 = new Vector3[2];
 
 
-                float Middlekankaku = 60 / (container.bpm * (float)notesData.lpb);
-                float Middletime = Middlekankaku * notesData.num + container.offset / 44100 + tapLag / 100;
+                float Middlekankaku = 60 / (container.bpm * (float)container.notes[L[a]].notes[i].lpb);
+                float Middletime = Middlekankaku * container.notes[L[a]].notes[i].num + container.offset / 44100 + tapLag / 100;
                
                 
 
                 float Middle_z = Middletime * gManager.noteSpeed;
-                MandEObj.Add(Instantiate(SampleLong, new Vector3(notesData.block - 3, 0.55f, Middle_z), Quaternion.identity));
+                MandEObj.Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].notes[i].block - 3, 0.55f, Middle_z), Quaternion.identity));
 
-                lowerVec3[0] = new Vector3(notesData.block - 3.5f, 0.55f, Middle_z);
-                lowerVec3[1] = new Vector3(notesData.block - 2.5f, 0.55f, Middle_z);
+                lowerVec3[0] = new Vector3(container.notes[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
+                lowerVec3[1] = new Vector3(container.notes[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
 
                 Vector3[] lineVerticesVec3 = new Vector3[4];
 
@@ -378,32 +390,30 @@ public class NotesManager : MonoBehaviour
                 lineVerticesVec3[2] = lowerVec3[0];
                 lineVerticesVec3[3] = lowerVec3[1];
 
+
                 GameObject lineObj = GameObject.CreatePrimitive(PrimitiveType.Quad);
 
-                lineObj.AddComponent<LongNotes>();//Quadにスクリプトを追加
-                lineObj.transform.parent = SampleObj[a].transform;//始点の子にする
+                lineObj.AddComponent<Notes>();//Quadにスクリプトを追加
+               
                
 
-               
-
-                if(index == 0)
+                if(i == 0)
                 {
-                    LongMNT[notesData.block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].block });//中間点のレーンの1番目に1番目の中間点の時間，始点のレーンをいれる
-                    QuadA[container.notes[L[a]].block].Add(lineObj);
+                    LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].block });//中間点のレーンの1番目に1番目の中間点の時間，始点のレーンをいれる
+                    QuadA[container.notes[L[a]].block].Add(new QuadInfo { Quad = lineObj, endtime = Middletime });
                 }
-                if (index < container.notes[L[a]].notes.Length - 1)
+                if (i < container.notes[L[a]].notes.Length - 1)
                 {
-                    LongSMNT[notesData.block].Add(Middletime);//中間点の時間をいれる
-                    QuadA[notesData.block].Add(lineObj);
-
+                    LongSMNT[container.notes[L[a]].notes[i].block].Add(Middletime);//中間点の時間をいれる
                 }
-                if(index > 0)
+                if(i > 0)
                 {
-                    LongMNT[notesData.block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].notes[index - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
-                    if(index < container.notes[L[a]].notes.Length - 1)
-                    {
-                        QuadA[notesData.block].Add(lineObj);
-                    }
+                    LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].notes[i - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
+
+                    QuadA[container.notes[L[a]].notes[i - 1].block].Add(new QuadInfo { Quad = lineObj, endtime = Middletime });
+
+                    
+
                 }//これにより，帯の終点がすぎた時，判定された時に帯の始点のレーンを取得できる(正しい帯を指定できる)
 
 
@@ -423,9 +433,10 @@ public class NotesManager : MonoBehaviour
 
                 lineObj.GetComponent<MeshFilter>().mesh = mesh;
 
-                upperVec3[0] = new Vector3(notesData.block - 3.5f, 0.55f, Middle_z);
-                upperVec3[1] = new Vector3(notesData.block - 2.5f, 0.55f, Middle_z);
+                upperVec3[0] = new Vector3(container.notes[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
+                upperVec3[1] = new Vector3(container.notes[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
 
+               
             }
 
         }

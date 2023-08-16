@@ -52,6 +52,13 @@ public class JudgeLong : MonoBehaviour
         MiddleJudge(isHolding);
         EndJudge();
 
+        for (int i = 0; i < notesManager.StartL.Length; i++)
+        {
+            if (notesManager.StartL[i].Count > 0 && Time.time > notesManager.StartL[i][0] + 0.2f + gManager.StartTime)
+            {
+                StartMiss(i);
+            }
+        }
 
         for(int i = 0; i < notesManager.LongMNT.Length; i++)//全てのレーンでミス判定のものがないか探す
         {
@@ -61,13 +68,7 @@ public class JudgeLong : MonoBehaviour
             }
            
         }
-        for(int i = 0; i < notesManager.LongSMNT.Length; i++)
-        {
-            if (notesManager.LongSMNT[i].Count > 0 && Time.time > notesManager.LongSMNT[i][0] + 0.2f + gManager.StartTime)
-            {
-                DeleteQuad(i);
-            }
-        }
+        
        
         
         
@@ -80,8 +81,7 @@ public class JudgeLong : MonoBehaviour
 
     public void StartJudge()
     {
-        if (notesManager.SampleNT.Count > 0)//ノーツがあるなら
-        {
+        
             //ロングノーツの始点を判定
             if (Input.GetMouseButtonDown(0))//タップ
             {
@@ -101,27 +101,27 @@ public class JudgeLong : MonoBehaviour
                         {
                             JCheck(0);//レーンが正しいか判断する関数
                         }
-                        if (result.gameObject.CompareTag(light.cubeTag1))
+                        else if(result.gameObject.CompareTag(light.cubeTag1))
                         {
                             JCheck(1);
                         }
-                        if (result.gameObject.CompareTag(light.cubeTag2))
+                        else if (result.gameObject.CompareTag(light.cubeTag2))
                         {
                             JCheck(2);
                         }
-                        if (result.gameObject.CompareTag(light.cubeTag3))
+                        else if (result.gameObject.CompareTag(light.cubeTag3))
                         {
                             JCheck(3);
                         }
-                        if (result.gameObject.CompareTag(light.cubeTag4))
+                        else if (result.gameObject.CompareTag(light.cubeTag4))
                         {
                             JCheck(4);
                         }
-                        if (result.gameObject.CompareTag(light.cubeTag5))
+                        else if (result.gameObject.CompareTag(light.cubeTag5))
                         {
                             JCheck(5);
                         }
-                        if (result.gameObject.CompareTag(light.cubeTag6))//右端
+                        else if (result.gameObject.CompareTag(light.cubeTag6))//右端
                         {
                             JCheck(6);
                         }
@@ -131,23 +131,7 @@ public class JudgeLong : MonoBehaviour
 
 
             }
-            if (notesManager.SampleNT.Count > 0)
-            {
-                if (Time.time > notesManager.SampleNT[0] + 0.2f + gManager.StartTime)//本来ノーツをたたくべき時間から0.2秒たっても入力がなかった場合
-                {
-                    message(3);
-                    RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-                    gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
-                    deleteData();
-                    Debug.Log("Miss");
-                    gManager.miss++;
-                    gManager.combo = 0;
-                    //ミス
-                }
-            }
-
-
-        }//notesManager.SampleNT.Count - 1 > -1
+            
     }
 
     public void EndJudge()
@@ -225,32 +209,38 @@ public class JudgeLong : MonoBehaviour
                     if (result.gameObject.CompareTag(light.cubeTag0))//0レーン
                     {
                         CheckLaneHit(0);
+                        CheckLayer(0);
                     }
                     if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
                     {
                         CheckLaneHit(1);
+                        CheckLayer(1);
                     }
                     if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
                     {
                         CheckLaneHit(2);
+                        CheckLayer(2);
                     }
                     if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
                     {
                         CheckLaneHit(3);
+                        CheckLayer(3);
                     }
                     if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
                     {
                         CheckLaneHit(4);
+                        CheckLayer(4);
 
                     }
                     if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
                     {
                         CheckLaneHit(5);
+                        CheckLayer(5);
                     }
                     if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
                     {
                         CheckLaneHit(6);
-
+                        CheckLayer(6);
 
                     }
                 }
@@ -261,7 +251,17 @@ public class JudgeLong : MonoBehaviour
 
 
 
-
+    public void StartMiss(int laneindex)
+    {
+        message(3);
+        RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
+        gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
+        deleteData(laneindex);
+        Debug.Log("Miss");
+        gManager.miss++;
+        gManager.combo = 0;
+        //ミス
+    }
 
     public void HandleMiss(int LaneIndex, int Qlane)
     {
@@ -270,6 +270,7 @@ public class JudgeLong : MonoBehaviour
         RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
         gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
 
+        notesManager.LongSMNT[Qlane].RemoveAt(0);
         MEdeleteData(LaneIndex);
         Debug.Log("Miss");
         gManager.miss++;
@@ -279,21 +280,12 @@ public class JudgeLong : MonoBehaviour
     }
 
 
-    public void JCheck(int lane)//押された 始点
+    public void JCheck(int laneindex)//押された 始点
     {
-        if (notesManager.SampleLN[0] == lane)//レーンがあってる
-        {
-            Judgement(GetABS(Time.time - (notesManager.SampleNT[0] + GManager.instance.StartTime)));//押された時間と，叩くべき時間(以下Ptim)
-        }
-        else
-        {
-                if (notesManager.SampleLN[1] == lane)//同時押しに対応(2点タップまで)
-                {
-                    
-                    Judgement(GetABS(Time.time - (notesManager.SampleNT[1] + GManager.instance.StartTime)));
-                }
-            
-        }
+        if (notesManager.StartL[laneindex].Count < 1) return;
+
+        Judgement(GetABS(Time.time - (notesManager.StartL[laneindex][0] + GManager.instance.StartTime)), laneindex);//押された時間と，叩くべき時間(以下Ptim)
+
     }
 
     public void Check(int lane)//指を離す
@@ -320,15 +312,24 @@ public class JudgeLong : MonoBehaviour
     }
     public void CheckLayer(int laneIndex)
     {
-        if (notesManager.LongSMNT[laneIndex].Count > 0)
+        if (notesManager.QuadA[laneIndex].Count < 1) return;
+
+        for (int i = 0; i < notesManager.QuadA[laneIndex].Count; i++)
         {
-            ChangeLayer(GetABS(Time.time - (notesManager.LongSMNT[laneIndex][0] + GManager.instance.StartTime)), laneIndex);
+            if (notesManager.QuadA[laneIndex][i].Quad.layer == 0)
+            {
+                if (notesManager.LongSMNT[laneIndex].Count < 1) return;
+                ChangeLayer(GetABS(Time.time - (notesManager.LongSMNT[laneIndex][i] + GManager.instance.StartTime)), laneIndex, i);
+                return;
+            }
         }
+        
     }
     
 
-    public void Judgement(float timeLag)
+    public void Judgement(float timeLag, int laneindex)
     {
+        if (timeLag > 0.15f) return;
         GetComponent<AudioSource>().PlayOneShot(longhitSound);
         if (timeLag <= 0.05)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.1秒以下だったら
         {
@@ -339,7 +340,7 @@ public class JudgeLong : MonoBehaviour
             
             gManager.perfect++;
             gManager.combo++;
-            deleteData();
+            deleteData(laneindex);
             return;
         }
         
@@ -352,7 +353,7 @@ public class JudgeLong : MonoBehaviour
            
             gManager.great++;
             gManager.combo++;
-            deleteData();
+            deleteData(laneindex);
             return;
         }
            
@@ -365,7 +366,7 @@ public class JudgeLong : MonoBehaviour
            
             gManager.bad++;
             gManager.combo = 0;
-            deleteData();
+            deleteData(laneindex);
             return;
         }
             
@@ -388,7 +389,7 @@ public class JudgeLong : MonoBehaviour
            
             gManager.perfect++;
             gManager.combo++;
-            
+            DeleteQuad(notesManager.LongMNT[Index][0].lane, notesManager.LongMNT[Index][0].notestime);
             MEdeleteData(Index);
             
             return;
@@ -403,7 +404,7 @@ public class JudgeLong : MonoBehaviour
            
             gManager.great++;
             gManager.combo++;
-           
+            DeleteQuad(notesManager.LongMNT[Index][0].lane, notesManager.LongMNT[Index][0].notestime);
             MEdeleteData(Index);
             
             return;
@@ -418,7 +419,7 @@ public class JudgeLong : MonoBehaviour
             
             gManager.bad++;
             gManager.combo = 0;
-            
+            DeleteQuad(notesManager.LongMNT[Index][0].lane, notesManager.LongMNT[Index][0].notestime);
             MEdeleteData(Index);
             
             return;
@@ -428,12 +429,12 @@ public class JudgeLong : MonoBehaviour
 
 
     }
-    public void ChangeLayer(float timeLag ,int laneindex)//帯を見切れるようにする
+    public void ChangeLayer(float timeLag , int laneindex , int i)//帯を見切れるようにする
     {
         if(timeLag <= 0.15)
         {
-            notesManager.QuadA[laneindex][0].layer = 3;
-            RemoveQuad(laneindex);
+            notesManager.QuadA[laneindex][i].Quad.layer = 3;
+            notesManager.LongSMNT[laneindex].RemoveAt(i);
         }
     }
 
@@ -451,10 +452,10 @@ public class JudgeLong : MonoBehaviour
         }
     }
 
-    public void deleteData()//すでにたたいたノーツを削除する関数
+    public void deleteData(int laneindex)//すでにたたいたノーツを削除する関数
     {
-        notesManager.SampleNT.RemoveAt(0);
-        notesManager.SampleLN.RemoveAt(0);
+        notesManager.StartL[laneindex].RemoveAt(0);
+        
 
         gManager.score = (int)gManager.ratioScore;
         //↑new
@@ -473,20 +474,19 @@ public class JudgeLong : MonoBehaviour
 
  
 
-    public void RemoveQuad(int LaneIndex)
+    
+    public void DeleteQuad(int LaneIndex, float endtime)//帯の始点すら触られなかったらその帯を削除　始点は別で削除される
     {
-        if(notesManager.QuadA[LaneIndex].Count > 0)
+        for (int i = 0; i < notesManager.QuadA[LaneIndex].Count; i++)
         {
-            notesManager.QuadA[LaneIndex].RemoveAt(0);
-            notesManager.LongSMNT[LaneIndex].RemoveAt(0);
+            if(endtime == notesManager.QuadA[LaneIndex][i].endtime)
+            {
+                notesManager.QuadA[LaneIndex][i].Quad.SetActive(false);
+                notesManager.QuadA[LaneIndex].RemoveAt(i);
+                
+            }
         }
-        
-    }
-    public void DeleteQuad(int LaneIndex)//帯の始点すら触られなかったらその帯を削除　始点は別で削除される
-    {
-        notesManager.QuadA[LaneIndex][0].SetActive(false);
-        notesManager.QuadA[LaneIndex].RemoveAt(0);
-        notesManager.LongSMNT[LaneIndex].RemoveAt(0);
+
     }
 
     void message(int judge)//判定を表示する
