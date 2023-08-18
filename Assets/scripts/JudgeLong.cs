@@ -27,6 +27,9 @@ public class JudgeLong : MonoBehaviour
    
     public Camera raycastCamera;//メインカメラ
 
+    public QuadInfo[] touchStart;
+    public bool[] isTouching;
+
     void Start()
     {
         isHolding = false;
@@ -47,16 +50,184 @@ public class JudgeLong : MonoBehaviour
             isHolding = false;
 
         }
-
+        /*
         StartJudge();
+        
         MiddleJudge(isHolding);
+        
         EndJudge();
-
+        */
         SearchMiss();
+
+        ProcessInput();
         
-       
         
-        
+    }
+
+    public void ProcessInput()
+    {
+        touchStart = new QuadInfo[Input.touchCount];
+        isTouching = new bool[Input.touchCount];
+
+        Ray Hray;
+        PointerEventData HpointerEventData;
+        List<RaycastResult> Hresults;
+
+        for (int id = 0; id < Input.touchCount; id++)
+        {
+            Touch touch = Input.GetTouch(id);
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                isTouching[id] = true;
+
+                Ray ray = raycastCamera.ScreenPointToRay(touch.position);
+
+                PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+                pointerEventData.position = touch.position;
+
+                List<RaycastResult> results = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(pointerEventData, results);
+
+                foreach (var result in results)
+                {
+                    if (result.gameObject != null)//当たったオブジェクトがnullじゃなかったら
+                    {
+                        if (result.gameObject.CompareTag(light.cubeTag0))//左端のレーン 格レーンについたタグ(canvasのbutton（透明）についてる)に当たったら
+                        {
+                            JCheck(0);//レーンが正しいか判断する関数
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag1))
+                        {
+                            JCheck(1);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag2))
+                        {
+                            JCheck(2);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag3))
+                        {
+                            JCheck(3);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag4))
+                        {
+                            JCheck(4);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag5))
+                        {
+                            JCheck(5);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag6))//右端
+                        {
+                            JCheck(6);
+                        }
+                    }
+
+                }
+            }
+            if(touch.phase == TouchPhase.Ended)
+            {
+                isTouching[id] = false;
+
+                Ray ray = raycastCamera.ScreenPointToRay(touch.position);
+
+                PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+                pointerEventData.position = touch.position;
+
+                List<RaycastResult> results = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(pointerEventData, results);
+
+                foreach (var result in results)
+                {
+                    if (result.gameObject != null)
+                    {
+                        if (result.gameObject.CompareTag(light.cubeTag0))//0レーン
+                        {
+                            Check(0,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
+                        {
+                            Check(1,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
+                        {
+                            Check(2,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
+                        {
+                            Check(3,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
+                        {
+                            Check(4,id);
+
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
+                        {
+                            Check(5,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
+                        {
+                            Check(6,id);
+                        }
+                    }
+                }
+            }
+            if (isTouching[id])
+            {
+                Hray = raycastCamera.ScreenPointToRay(touch.position);
+
+                HpointerEventData = new PointerEventData(EventSystem.current);
+                HpointerEventData.position = touch.position;
+
+                Hresults = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(HpointerEventData, Hresults);
+
+                foreach (var result in Hresults)
+                {
+                    if (result.gameObject != null)//当たったオブジェクトがnullじゃなかったら
+                    {
+                        if (result.gameObject.CompareTag(light.cubeTag0))//0レーン
+                        {
+                            CheckLaneHit(0,id);
+                            CheckLayer(0,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
+                        {
+                            CheckLaneHit(1,id);
+                            CheckLayer(1,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
+                        {
+                            CheckLaneHit(2,id);
+                            CheckLayer(2,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
+                        {
+                            CheckLaneHit(3,id);
+                            CheckLayer(3,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
+                        {
+                            CheckLaneHit(4,id);
+                            CheckLayer(4,id);
+
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
+                        {
+                            CheckLaneHit(5,id);
+                            CheckLayer(5,id);
+                        }
+                        else if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
+                        {
+                            CheckLaneHit(6,id);
+                            CheckLayer(6,id);
+
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void SearchMiss()
@@ -100,7 +271,7 @@ public class JudgeLong : MonoBehaviour
 
     //å∫ç∂´ƒ©˙ˆ∆˚¬µ˜øπœ®ß†¨√∑≈¥Ω
     
-
+    /*
     public void StartJudge()
     {
         
@@ -205,6 +376,7 @@ public class JudgeLong : MonoBehaviour
             }
         }//(Input.GetMouseButtonUp(0))//指を離す
     }
+    
     public void MiddleJudge(bool isHolding)
     {
         Ray Hray;
@@ -269,7 +441,7 @@ public class JudgeLong : MonoBehaviour
                 
             }
         }
-    }
+    }*/
 
 
 
@@ -310,29 +482,29 @@ public class JudgeLong : MonoBehaviour
 
     }
 
-    public void Check(int lane)//指を離す
+    public void Check(int lane,int id)//指を離す
     {
-        if (notesManager.LongMNT[lane].Count < 1) return;//要素がなかったら帰る
+        if (notesManager.LongMNT[touchStart[id].endlane].Count < 1) return;//要素がなかったら帰る
        
-        MEjudgement(GetABS(Time.time - (notesManager.LongMNT[lane][0].notestime + GManager.instance.StartTime)), lane);//laneは帯の終点のレーン
+        MEjudgement(GetABS(Time.time - (notesManager.LongMNT[touchStart[id].endlane][0].notestime + GManager.instance.StartTime)), lane,id);//laneは帯の終点のレーン
        
     }
 
 
-    public void CheckLaneHit(int laneIndex)//指が触れている時
+    public void CheckLaneHit(int laneIndex,int id)//指が触れている時
     {
         if (notesManager.LongMNT[laneIndex].Count > 0)
         {
             
             if (0.0250 >= GetABS(Time.time - (notesManager.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
             {
-                MEjudgement(0, laneIndex);//laneIndexは帯の終点のレーン
+                MEjudgement(0, laneIndex, id);//laneIndexは帯の終点のレーン
             }
             
         }
 
     }
-    public void CheckLayer(int laneIndex)
+    public void CheckLayer(int laneIndex,int id)
     {
         if (notesManager.QuadA[laneIndex].Count < 1) return;
 
@@ -341,7 +513,7 @@ public class JudgeLong : MonoBehaviour
             if (notesManager.QuadA[laneIndex][i].Quad.layer == 0)
             {
                 if (notesManager.LongSMNT[laneIndex].Count < 1) return;
-                ChangeLayer(GetABS(Time.time - (notesManager.LongSMNT[laneIndex][i] + GManager.instance.StartTime)), laneIndex, i);
+                ChangeLayer(GetABS(Time.time - (notesManager.LongSMNT[laneIndex][i] + GManager.instance.StartTime)), laneIndex, i,id);
                 return;
             }
         }
@@ -395,7 +567,7 @@ public class JudgeLong : MonoBehaviour
         
     }
 
-    public void MEjudgement(float timeLag, int Index)
+    public void MEjudgement(float timeLag, int Index,int id)
     {
         if (timeLag <= 0.15)
         {
@@ -412,7 +584,7 @@ public class JudgeLong : MonoBehaviour
             gManager.perfect++;
             gManager.combo++;
             DeleteQuad(notesManager.LongMNT[Index][0].lane, notesManager.LongMNT[Index][0].notestime);
-            MEdeleteData(Index);
+            MEdeleteData(touchStart[id].endlane);
             
             return;
         }
@@ -427,7 +599,7 @@ public class JudgeLong : MonoBehaviour
             gManager.great++;
             gManager.combo++;
             DeleteQuad(notesManager.LongMNT[Index][0].lane, notesManager.LongMNT[Index][0].notestime);
-            MEdeleteData(Index);
+            MEdeleteData(touchStart[id].endlane);
             
             return;
         }
@@ -443,23 +615,31 @@ public class JudgeLong : MonoBehaviour
             gManager.combo = 0;
            
             DeleteQuad(notesManager.LongMNT[Index][0].lane, notesManager.LongMNT[Index][0].notestime);
-            MEdeleteData(Index);
+            MEdeleteData(touchStart[id].endlane);
             
             return;
                 
         }
-        /*
-        InTheMiddle(notesManager.LongMNT[Index][0].lane, notesManager.LongMNT[Index][0].notestime);
-        */
+
+        if(Time.time - GManager.instance.StartTime > touchStart[id].starttime)
+        {
+            InTheMiddle(notesManager.LongMNT[touchStart[id].endlane][0].notestime, id);
+            return;
+        }
+        
+        
+        
 
 
     }
-    public void ChangeLayer(float timeLag , int laneindex , int i)//帯を見切れるようにする
+    public void ChangeLayer(float timeLag , int laneindex , int i,int id)//帯を見切れるようにする
     {
         if(timeLag <= 0.15)
         {
             notesManager.QuadA[laneindex][i].Quad.layer = 3;
-           
+            touchStart[id] = notesManager.QuadA[laneindex][i];
+
+
         }
     }
 
@@ -513,23 +693,23 @@ public class JudgeLong : MonoBehaviour
         }
 
     }
-    /*
-    public void InTheMiddle(int laneindex, float endtime)
+    
+    
+    public void InTheMiddle(float endtime,int id)
     {
-        for (int i = 0; i < notesManager.QuadA[laneindex].Count; i++)
+        for (int i = 0; i < notesManager.QuadA[touchStart[id].startlane].Count; i++)
         {
-            float startTime = notesManager.LongSMNT[laneindex][i];
-            if (endtime == notesManager.QuadA[laneindex][i].endtime)
+            int startlane = touchStart[id].startlane;
+            if (touchStart[id].starttime == notesManager.QuadA[startlane][i].starttime && touchStart[id].endlane == notesManager.QuadA[startlane][i].endlane && touchStart[id].endtime == notesManager.QuadA[startlane][i].endtime)
             {
-                if (startTime < Time.time - GManager.instance.StartTime)
-                {
-                    notesManager.QuadA[laneindex][i].Quad.SetActive(false);
-
-                }
+                notesManager.QuadA[startlane][i].Quad.SetActive(false);
+                notesManager.QuadA[startlane].RemoveAt(i);
+                notesManager.LongSMNT[startlane].RemoveAt(i);
             }
         }
+
     }
-    */
+    
 
     void message(int judge)//判定を表示する
     {

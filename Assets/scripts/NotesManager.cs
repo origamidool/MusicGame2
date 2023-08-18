@@ -31,7 +31,10 @@ public class NoteInfo
 }
 public class QuadInfo
 {
+    public float starttime;
     public float endtime;
+    public int startlane;
+    public int endlane;
     public GameObject Quad;
 }
 
@@ -142,8 +145,8 @@ public class NotesManager : MonoBehaviour
 
     [SerializeField] private GameObject SampleLong;//7/18火
     public List<float> SampleNT = new List<float>();
-    [SerializeField] public List<int> SampleLN = new List<int>();
-    [SerializeField] public List<GameObject> SampleObj = new List<GameObject>();
+    public List<int> SampleLN = new List<int>();
+    public List<GameObject> SampleObj = new List<GameObject>();
 
     public List<GameObject> MandEObj = new List<GameObject>();//中間点と終点のオブジェクト
   
@@ -374,8 +377,9 @@ public class NotesManager : MonoBehaviour
 
                 float Middlekankaku = 60 / (container.bpm * (float)container.notes[L[a]].notes[i].lpb);
                 float Middletime = Middlekankaku * container.notes[L[a]].notes[i].num + container.offset / 44100 + tapLag / 100;
-               
-                
+
+                float[] Middletimes = new float[container.notes[L[a]].notes.Length];
+                Middletimes[i] = Middletime;
 
                 float Middle_z = Middletime * gManager.noteSpeed;
                 MandEObj.Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].notes[i].block - 3, 0.55f, Middle_z), Quaternion.identity));
@@ -400,7 +404,7 @@ public class NotesManager : MonoBehaviour
                 if(i == 0)
                 {
                     LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].block });//中間点のレーンの1番目に1番目の中間点の時間，始点のレーンをいれる
-                    QuadA[container.notes[L[a]].block].Add(new QuadInfo { Quad = lineObj, endtime = Middletime });
+                    QuadA[container.notes[L[a]].block].Add(new QuadInfo { Quad = lineObj, starttime = SampleLtime, endtime = Middletime, startlane = container.notes[L[a]].block, endlane = container.notes[L[a]].notes[i].block });
                 }
                 if (i < container.notes[L[a]].notes.Length - 1)
                 {
@@ -410,7 +414,7 @@ public class NotesManager : MonoBehaviour
                 {
                     LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].notes[i - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
 
-                    QuadA[container.notes[L[a]].notes[i - 1].block].Add(new QuadInfo { Quad = lineObj, endtime = Middletime });
+                    QuadA[container.notes[L[a]].notes[i - 1].block].Add(new QuadInfo { Quad = lineObj, starttime = Middletimes[i - 1], endtime = Middletime , startlane = container.notes[L[a]].notes[i - 1].block, endlane = container.notes[L[a]].notes[i].block });
 
                     
 

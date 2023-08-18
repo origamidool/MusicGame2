@@ -100,84 +100,98 @@ public class Light : MonoBehaviour
 
         alfa -= Speed * Time.deltaTime;
 
+        ProcessInput();
 
+    }
+    public void ProcessInput()
+    {
+        if (Input.touchCount <= 0) return;
 
+        Ray Hray;
+        PointerEventData HpointerEventData;
+        List<RaycastResult> Hresults;
+       
 
-        if (Input.GetMouseButtonDown(0))//タップ
+        for (int id = 0; id < Input.touchCount; id++)
         {
-            Ray ray = raycastCamera.ScreenPointToRay(Input.mousePosition);
+            Touch touch = Input.GetTouch(id);
 
-            PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
-            pointerEventData.position = Input.mousePosition;
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerEventData, results);
-
-            foreach (var result in results)
+            if (touch.phase == TouchPhase.Began)
             {
-                if (result.gameObject != null && result.gameObject.CompareTag(cubeTag0))
+                Ray ray = raycastCamera.ScreenPointToRay(touch.position);
+
+                PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+                pointerEventData.position = touch.position;
+
+                List<RaycastResult> results = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(pointerEventData, results);
+
+                foreach (var result in results)
                 {
-                    if (num == 1)
+                    if (result.gameObject != null)//当たったオブジェクトがnullじゃなかったら
                     {
-                        colorChange();
-                        break;
+                        if (result.gameObject.CompareTag(cubeTag0))//左端のレーン 格レーンについたタグ(canvasのbutton（透明）についてる)に当たったら
+                        {
+                            if (num == 1)
+                            {
+                                colorChange();
+                                break;
+                            }
+                        }
+                        else if (result.gameObject.CompareTag(cubeTag1))
+                        {
+                            if (num == 2)
+                            {
+                                colorChange();
+                                break;
+                            }
+                        }
+                        else if (result.gameObject.CompareTag(cubeTag2))
+                        {
+                            if (num == 3)
+                            {
+                                colorChange();
+                                break;
+                            }
+                        }
+                        else if (result.gameObject.CompareTag(cubeTag3))
+                        {
+                            if (num == 4)
+                            {
+                                colorChange();
+                                break;
+                            }
+                        }
+                        else if (result.gameObject.CompareTag(cubeTag4))
+                        {
+                            if (num == 5)
+                            {
+                                colorChange();
+                                break;
+                            }
+                        }
+                        else if (result.gameObject.CompareTag(cubeTag5))
+                        {
+                            if (num == 6)
+                            {
+                                colorChange();
+                                break;
+                            }
+                        }
+                        else if (result.gameObject.CompareTag(cubeTag6))//右端
+                        {
+                            if (num == 7)
+                            {
+                                colorChange();
+                                break;
+                            }
+                        }
                     }
-                    
-                }
-                if (result.gameObject != null && result.gameObject.CompareTag(cubeTag1))
-                {
-                    if (num == 2)
-                    {
-                        colorChange();
-                        break;
-                    }
-                }
-                if (result.gameObject != null && result.gameObject.CompareTag(cubeTag2))
-                {
-                    if (num == 3)
-                    {
-                        colorChange();
-                        break;
-                    }
-                }
-                if (result.gameObject != null && result.gameObject.CompareTag(cubeTag3))
-                {
-                    if (num == 4)
-                    {
-                        colorChange();
-                        break;
-                    }
-                }
-                if (result.gameObject != null && result.gameObject.CompareTag(cubeTag4))
-                {
-                    if (num == 5)
-                    {
-                        colorChange();
-                        break;
-                    }
-                }
-                if (result.gameObject != null && result.gameObject.CompareTag(cubeTag5))
-                {
-                    if (num == 6)
-                    {
-                        colorChange();
-                        break;
-                    }
-                }
-                if (result.gameObject != null && result.gameObject.CompareTag(cubeTag6))
-                {
-                    if (num == 7)
-                    {
-                        colorChange();
-                        break;
-                    }
+
                 }
             }
 
-
-
         }
-
     }
 
     public void colorChange()

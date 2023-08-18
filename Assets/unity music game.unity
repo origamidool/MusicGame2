@@ -1102,7 +1102,7 @@ MonoBehaviour:
   _use3dPositioning: 1
   _freezeOrientation: 0
   _loop: 0
-  _volume: 0.03
+  _volume: 0.007
   _pitch: 0
   _androidUseLowLatencyVoicePool: 0
   need_to_player_update_all: 1
@@ -2724,7 +2724,6 @@ MonoBehaviour:
   notesManager: {fileID: 495515116}
   light: {fileID: 396271391}
   RawScore: 0
-  rayInterval: 0.02
   lastTouchtime: -1
   longhitSound: {fileID: 8300000, guid: eb0ce1892b8d844c98f89958a75a5157, type: 3}
   MessageObj:
@@ -2735,6 +2734,7 @@ MonoBehaviour:
   button: 0
   isHolding: 0
   raycastCamera: {fileID: 451994070}
+  isTouching: 
 --- !u!4 &994608863
 Transform:
   m_ObjectHideFlags: 0
