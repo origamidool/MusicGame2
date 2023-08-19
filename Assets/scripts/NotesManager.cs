@@ -70,7 +70,7 @@ public class NotesManager : MonoBehaviour
 
     public GManager gManager;
 
-    
+   
 
 
     public int noteNum;//総ノーツ数
@@ -321,7 +321,7 @@ public class NotesManager : MonoBehaviour
 
             float Nkankaku = 60 / (container.bpm * (float)container.notes[N[u]].lpb);
             float NbeatSec = Nkankaku * (float)container.notes[N[u]].lpb;
-            float Ntime = Nkankaku * container.notes[N[u]].num + container.offset / 44100 + tapLag / 100;
+            float Ntime = Nkankaku * container.notes[N[u]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
             NormalNT.Add(Ntime);
             NormalLN.Add(container.notes[N[u]].block);
@@ -342,7 +342,7 @@ public class NotesManager : MonoBehaviour
             //始点を生成
              
             float Samplekankaku = 60 / (container.bpm * (float)container.notes[L[a]].lpb);
-            float SampleLtime = Samplekankaku * container.notes[L[a]].num + container.offset / 44100 + tapLag / 100;
+            float SampleLtime = Samplekankaku * container.notes[L[a]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
             
             StartL[container.notes[L[a]].block].Add(SampleLtime);
@@ -350,7 +350,7 @@ public class NotesManager : MonoBehaviour
             LongSMNT[container.notes[L[a]].block].Add(SampleLtime);//帯レイヤー変更判定用 始点の時間をいれる
        
 
-            float Sample_z = SampleLtime * gManager.noteSpeed;
+            float Sample_z = (SampleLtime) * gManager.noteSpeed;
             SampleObj.Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].block - 3, 0.55f, Sample_z), Quaternion.identity));
 
             Vector3[] upperVec3 = new Vector3[2];
@@ -376,12 +376,12 @@ public class NotesManager : MonoBehaviour
 
 
                 float Middlekankaku = 60 / (container.bpm * (float)container.notes[L[a]].notes[i].lpb);
-                float Middletime = Middlekankaku * container.notes[L[a]].notes[i].num + container.offset / 44100 + tapLag / 100;
+                float Middletime = Middlekankaku * container.notes[L[a]].notes[i].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
                 float[] Middletimes = new float[container.notes[L[a]].notes.Length];
                 Middletimes[i] = Middletime;
 
-                float Middle_z = Middletime * gManager.noteSpeed;
+                float Middle_z = (Middletime) * gManager.noteSpeed;
                 MandEObj.Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].notes[i].block - 3, 0.55f, Middle_z), Quaternion.identity));
 
                 lowerVec3[0] = new Vector3(container.notes[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
@@ -452,7 +452,7 @@ public class NotesManager : MonoBehaviour
 
             float Skankaku = 60 / (container.bpm * (float)container.notes[S[s]].lpb);
             float SbeatSec = Skankaku * (float)container.notes[S[s]].lpb;
-            float Stime = Skankaku * container.notes[S[s]].num + container.offset / 44100 + tapLag / 100;
+            float Stime = Skankaku * container.notes[S[s]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
             SrideNT.Add(Stime);
             SrideLN.Add(container.notes[S[s]].block);
             float Sz = SrideNT[s] * gManager.noteSpeed;
@@ -519,7 +519,7 @@ public class NotesManager : MonoBehaviour
         {
             float Fkankaku = 60 / (container.bpm * (float)container.notes[F[Flick[ff]]].lpb);
             float FbeatSec = Fkankaku * (float)container.notes[F[Flick[ff]]].lpb;
-            float Ftime = Fkankaku * container.notes[F[Flick[ff]]].num + container.offset / 44100 + tapLag / 100;
+            float Ftime = Fkankaku * container.notes[F[Flick[ff]]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
             FlickNT.Add(Ftime);
             FlickLN.Add(container.notes[F[Flick[ff]]].block);

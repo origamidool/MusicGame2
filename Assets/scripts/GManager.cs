@@ -25,6 +25,8 @@ public class GManager : MonoBehaviour
     public int bad;
     public int miss;
 
+    public float grace = 0.0f;
+
     public void Awake()
     {
         

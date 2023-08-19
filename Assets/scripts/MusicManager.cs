@@ -33,9 +33,15 @@ public class MusicManager : MonoBehaviour
         gManager.Start = true;
         GManager.instance.StartTime = Time.time;
         criAtomSource.cueName = songName;
-        criAtomSource.Play(criAtomSource.cueName);
+        
         played = true;
         
         targetObj.SetActive(false);
+
+        Invoke(nameof(PlaySong), GManager.instance.grace);
+    }
+    private void PlaySong()
+    {
+        criAtomSource.Play(criAtomSource.cueName);
     }
 }

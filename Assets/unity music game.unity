@@ -1102,7 +1102,7 @@ MonoBehaviour:
   _use3dPositioning: 1
   _freezeOrientation: 0
   _loop: 0
-  _volume: 0.007
+  _volume: 0.022
   _pitch: 0
   _androidUseLowLatencyVoicePool: 0
   need_to_player_update_all: 1
@@ -2562,6 +2562,7 @@ MonoBehaviour:
   great: 0
   bad: 0
   miss: 0
+  grace: 1
 --- !u!1 &961800514 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 888980368247575411, guid: 1c717856d36224ceca84678ac7ba6ba7, type: 3}
@@ -2731,10 +2732,7 @@ MonoBehaviour:
   - {fileID: 1804281105214326634, guid: 031266285fdab4596ad4f1a3ff43575a, type: 3}
   - {fileID: 7148330816155544073, guid: 3ee5e1c0c8b6c45c99a82eddb1599e25, type: 3}
   - {fileID: 3727401635588405163, guid: da482fe4d7a514ce3b4393209a3c1952, type: 3}
-  button: 0
-  isHolding: 0
   raycastCamera: {fileID: 451994070}
-  isTouching: 
 --- !u!4 &994608863
 Transform:
   m_ObjectHideFlags: 0
@@ -3191,8 +3189,8 @@ LineRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Positions:
-  - {x: -3.5, y: 0.5, z: 0}
-  - {x: 3.5, y: 0.5, z: 0}
+  - {x: -3.5, y: 0.5, z: -0.01}
+  - {x: 3.5, y: 0.5, z: -0.01}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -3201,7 +3199,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.13845819
+        value: 0.10961263
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -3256,8 +3254,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1168110814}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.7321672, z: -8.642171}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 3.7321672, z: 0.93063}
+  m_LocalScale: {x: 1, y: 1, z: 1.034}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
