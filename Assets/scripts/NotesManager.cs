@@ -38,6 +38,17 @@ public class QuadInfo
     public GameObject Quad;
 }
 
+[System.Serializable]
+public class DataLists
+{
+    [SerializeField]
+    public List<float>[] LongSMNT;//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
+    public List<QuadInfo>[] QuadA;
+    public List<NoteInfo>[] LongMNT;//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
+    public List<float>[] StartL;//始点のノーツタイム
+    public List<GameObject>[] StartObj;
+}
+
 
 
 public class NotesManager : MonoBehaviour
@@ -144,8 +155,7 @@ public class NotesManager : MonoBehaviour
     [SerializeField] private GameObject FlObj;//7/20使用を確認
 
     [SerializeField] private GameObject SampleLong;//7/18火
-    public List<float> SampleNT = new List<float>();
-    public List<int> SampleLN = new List<int>();
+   
     public List<GameObject> SampleObj = new List<GameObject>();
 
     public List<GameObject> MandEObj = new List<GameObject>();//中間点と終点のオブジェクト
@@ -156,13 +166,11 @@ public class NotesManager : MonoBehaviour
 
 
 
-    public List<float>[] LongSMNT { get; private set; }//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
-    public List<QuadInfo>[] QuadA { get; private set; }
-    public List<NoteInfo>[] LongMNT { get; private set; }//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
-    public List<float>[] StartL { get; private set; }//始点のノーツタイム
+    public DataLists dataLists;
 
 
-    public List<GameObject>[] StartObj { get; private set; }
+
+    
 
     [SerializeField] private float tapLag = 0;
 
@@ -175,7 +183,7 @@ public class NotesManager : MonoBehaviour
 
     }
 
-    public int[] type1;
+    private int[] type1;
 
     
 
@@ -185,8 +193,8 @@ public class NotesManager : MonoBehaviour
         jsonFilePath = "Assets/Resources/" + SongName + ".json";
         string jsonString = System.IO.File.ReadAllText(jsonFilePath);
         JaggedArrayContainer container = JsonUtility.FromJson<JaggedArrayContainer>(jsonString);
-        
 
+        
        
 
        
@@ -299,18 +307,18 @@ public class NotesManager : MonoBehaviour
 
         }
 
-        LongSMNT = new List<float>[7];
-        QuadA = new List<QuadInfo>[7];//new!
-        LongMNT = new List<NoteInfo>[7];
-        StartObj = new List<GameObject>[7];
-        StartL = new List<float>[7];
+        dataLists.LongSMNT = new List<float>[7];
+        dataLists.QuadA = new List<QuadInfo>[7];//new!
+        dataLists.LongMNT = new List<NoteInfo>[7];
+        dataLists.StartObj = new List<GameObject>[7];
+        dataLists.StartL = new List<float>[7];
         for (int i = 0; i < 7; i++)
         {
-            LongSMNT[i] = new List<float>();
-            QuadA[i] = new List<QuadInfo>();
-            LongMNT[i] = new List<NoteInfo>();
-            StartObj[i] = new List<GameObject>();
-            StartL[i] = new List<float>();
+            dataLists.LongSMNT[i] = new List<float>();
+            dataLists.QuadA[i] = new List<QuadInfo>();
+            dataLists.LongMNT[i] = new List<NoteInfo>();
+            dataLists.StartObj[i] = new List<GameObject>();
+            dataLists.StartL[i] = new List<float>();
         }
 
 
@@ -345,9 +353,9 @@ public class NotesManager : MonoBehaviour
             float SampleLtime = Samplekankaku * container.notes[L[a]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
             
-            StartL[container.notes[L[a]].block].Add(SampleLtime);
+            dataLists.StartL[container.notes[L[a]].block].Add(SampleLtime);
 
-            LongSMNT[container.notes[L[a]].block].Add(SampleLtime);//帯レイヤー変更判定用 始点の時間をいれる
+            dataLists.LongSMNT[container.notes[L[a]].block].Add(SampleLtime);//帯レイヤー変更判定用 始点の時間をいれる
        
 
             float Sample_z = (SampleLtime) * gManager.noteSpeed;
@@ -403,18 +411,18 @@ public class NotesManager : MonoBehaviour
 
                 if(i == 0)
                 {
-                    LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].block });//中間点のレーンの1番目に1番目の中間点の時間，始点のレーンをいれる
-                    QuadA[container.notes[L[a]].block].Add(new QuadInfo { Quad = lineObj, starttime = SampleLtime, endtime = Middletime, startlane = container.notes[L[a]].block, endlane = container.notes[L[a]].notes[i].block });
+                    dataLists.LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].block });//中間点のレーンの1番目に1番目の中間点の時間，始点のレーンをいれる
+                    dataLists.QuadA[container.notes[L[a]].block].Add(new QuadInfo { Quad = lineObj, starttime = SampleLtime, endtime = Middletime, startlane = container.notes[L[a]].block, endlane = container.notes[L[a]].notes[i].block });
                 }
                 if (i < container.notes[L[a]].notes.Length - 1)
                 {
-                    LongSMNT[container.notes[L[a]].notes[i].block].Add(Middletime);//中間点の時間をいれる
+                    dataLists.LongSMNT[container.notes[L[a]].notes[i].block].Add(Middletime);//中間点の時間をいれる
                 }
                 if(i > 0)
                 {
-                    LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].notes[i - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
+                    dataLists.LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].notes[i - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
 
-                    QuadA[container.notes[L[a]].notes[i - 1].block].Add(new QuadInfo { Quad = lineObj, starttime = Middletimes[i - 1], endtime = Middletime , startlane = container.notes[L[a]].notes[i - 1].block, endlane = container.notes[L[a]].notes[i].block });
+                    dataLists.QuadA[container.notes[L[a]].notes[i - 1].block].Add(new QuadInfo { Quad = lineObj, starttime = Middletimes[i - 1], endtime = Middletime , startlane = container.notes[L[a]].notes[i - 1].block, endlane = container.notes[L[a]].notes[i].block });
 
                     
 

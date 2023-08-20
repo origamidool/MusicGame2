@@ -1320,13 +1320,10 @@ MonoBehaviour:
   SridenoteObj: {fileID: 1698205095}
   FlObj: {fileID: 199263863}
   SampleLong: {fileID: 1745005125}
-  SampleNT: []
-  SampleLN: 
   SampleObj: []
   MandEObj: []
   SrideObj: []
   tapLag: -10
-  type1: 
 --- !u!4 &495515117
 Transform:
   m_ObjectHideFlags: 0
@@ -2562,7 +2559,7 @@ MonoBehaviour:
   great: 0
   bad: 0
   miss: 0
-  grace: 1
+  grace: 4
 --- !u!1 &961800514 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 888980368247575411, guid: 1c717856d36224ceca84678ac7ba6ba7, type: 3}
