@@ -46,6 +46,14 @@ public class JudgeLong : MonoBehaviour
         {3,false },
         {4,false },
     };
+    Dictionary<int, bool> isAdded = new Dictionary<int, bool>()
+    {
+        {0,false },
+        {1,false },
+        {2,false },
+        {3,false },
+        {4,false },
+    };
 
 
     void Update()
@@ -257,25 +265,14 @@ public class JudgeLong : MonoBehaviour
             {
                 HandleMiss(i);
             }
-            for (int p = 0; p < notesManager.dataLists.LongSMNT[i].Count; p++)
-            {
-                if (notesManager.dataLists.LongSMNT[i].Count > 0 && Time.time > notesManager.dataLists.LongSMNT[i][p] + 0.15f + gManager.StartTime)
-                {
-                    notesManager.dataLists.QuadA[i].RemoveAt(p);
-                    notesManager.dataLists.LongSMNT[i].RemoveAt(p);
-                }
-            }
-
+            
         }
         for (int i = 0; i < notesManager.dataLists.LongSMNT.Length; i++)
         {
-            for(int j = 0; j < notesManager.dataLists.LongSMNT[i].Count; j++)
+            if (notesManager.dataLists.LongSMNT[i].Count > 0 && Time.time > notesManager.dataLists.LongSMNT[i][0] + 0.15f + gManager.StartTime)
             {
-                if (notesManager.dataLists.LongSMNT[i].Count > 0 && Time.time > notesManager.dataLists.LongSMNT[i][j] + 0.15f + gManager.StartTime)
-                {
-                    notesManager.dataLists.QuadA[i][j].Quad.SetActive(false);
-                    
-                }
+                notesManager.dataLists.QuadA[i][0].Quad.SetActive(false);
+                DeleteQuadData(i);
             }
         }
     }
@@ -315,27 +312,29 @@ public class JudgeLong : MonoBehaviour
     public void CheckLayer(int laneIndex, int id)
     {
         if (notesManager.dataLists.QuadA[laneIndex].Count < 1) return;
+        if (notesManager.dataLists.LongSMNT[laneIndex].Count < 1) return;
 
-        for (int i = 0; i < notesManager.dataLists.QuadA[laneIndex].Count; i++)
+        ChangeLayer(GetABS(Time.time - (notesManager.dataLists.LongSMNT[laneIndex][0] + GManager.instance.StartTime)), laneIndex,id);
+           
+    }
+
+    public void ChangeLayer(float timeLag, int laneindex, int id)//帯を見切れるようにする
+    {
+        if (timeLag >= 0.15) return;
+        isAdded[id] = true;
+        if (touchStart.ContainsKey(key: id))
         {
-            if (notesManager.dataLists.QuadA[laneIndex][i].Quad.layer == 0)
+            if (touchStart[id] != null)
             {
-                if (notesManager.dataLists.LongSMNT[laneIndex].Count < 1) return;
-                ChangeLayer(GetABS(Time.time - (notesManager.dataLists.LongSMNT[laneIndex][i] + GManager.instance.StartTime)), laneIndex, i, id);
-                return;
+                if (Time.time - (touchStart[id].endtime + gManager.StartTime) == 0) isAdded[id] = false;
             }
         }
 
-    }
-
-    public void ChangeLayer(float timeLag, int laneindex, int i, int id)//帯を見切れるようにする
-    {
-        if (timeLag <= 0.15)
+        if (isAdded[id])
         {
-            notesManager.dataLists.QuadA[laneindex][i].Quad.layer = 3;
-            touchStart[id] = notesManager.dataLists.QuadA[laneindex][i];
-            if (touchStart[id] != null) Debug.Log("触れたQuadの終点" + touchStart[id].endlane);
-
+            touchStart[id] = notesManager.dataLists.QuadA[laneindex][0];
+            touchStart[id].Quad.layer = 3;
+            DeleteQuadData(laneindex);
         }
     }
     public void JCheck(int laneindex)//押された 始点
@@ -359,16 +358,21 @@ public class JudgeLong : MonoBehaviour
 
     public void CheckLaneHit(int laneIndex,int id)//指が触れている時
     {
-        if (notesManager.dataLists.LongMNT[laneIndex].Count > 0)
-        {
-            
-            if (0.0250 >= GetABS(Time.time - (notesManager.dataLists.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
-            {
-                MEjudgement(0, laneIndex, id);//laneIndexは帯の終点のレーン
-            }
-            
-        }
+        
+        if (notesManager.dataLists.LongMNT[laneIndex].Count < 1) return;//要素がなかったら帰る
 
+        if (0.0350 >= GetABS(Time.time - (notesManager.dataLists.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
+        {
+            GetComponent<AudioSource>().PlayOneShot(longhitSound);
+            Debug.Log("Perfect");
+            message(0);
+            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
+            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
+
+            gManager.perfect++;
+            gManager.combo++;
+            MEdeleteData(laneIndex);
+        }
     }
     
     
@@ -435,7 +439,7 @@ public class JudgeLong : MonoBehaviour
            
             gManager.perfect++;
             gManager.combo++;
-            DeleteQuad(notesManager.dataLists.LongMNT[Index][0].lane, notesManager.dataLists.LongMNT[Index][0].notestime);
+            
             MEdeleteData(touchStart[id].endlane);
             
             return;
@@ -450,7 +454,7 @@ public class JudgeLong : MonoBehaviour
            
             gManager.great++;
             gManager.combo++;
-            DeleteQuad(notesManager.dataLists.LongMNT[Index][0].lane, notesManager.dataLists.LongMNT[Index][0].notestime);
+           
             MEdeleteData(touchStart[id].endlane);
             
             return;
@@ -466,7 +470,7 @@ public class JudgeLong : MonoBehaviour
             gManager.bad++;
             gManager.combo = 0;
            
-            DeleteQuad(notesManager.dataLists.LongMNT[Index][0].lane, notesManager.dataLists.LongMNT[Index][0].notestime);
+           
             MEdeleteData(touchStart[id].endlane);
             
             return;
@@ -475,7 +479,7 @@ public class JudgeLong : MonoBehaviour
 
         if(Time.time - GManager.instance.StartTime > touchStart[id].starttime)
         {
-            InTheMiddle(notesManager.dataLists.LongMNT[touchStart[id].endlane][0].notestime, id);
+            InTheMiddle(id);
             message(3);
 
             RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
@@ -490,10 +494,6 @@ public class JudgeLong : MonoBehaviour
             //ミス
             return;
         }
-        
-        
-        
-
 
     }
     
@@ -548,20 +548,18 @@ public class JudgeLong : MonoBehaviour
         }
 
     }
-    
-    
-    public void InTheMiddle(float endtime,int id)
+    public void DeleteQuadData(int laneindex)
     {
-        for (int i = 0; i < notesManager.dataLists.QuadA[touchStart[id].startlane].Count; i++)
-        {
-            int startlane = touchStart[id].startlane;
-            if (touchStart[id].starttime == notesManager.dataLists.QuadA[startlane][i].starttime && touchStart[id].endlane == notesManager.dataLists.QuadA[startlane][i].endlane && touchStart[id].endtime == notesManager.dataLists.QuadA[startlane][i].endtime)
-            {
-                notesManager.dataLists.QuadA[startlane][i].Quad.SetActive(false);
-                notesManager.dataLists.QuadA[startlane].RemoveAt(i);
-                notesManager.dataLists.LongSMNT[startlane].RemoveAt(i);
-            }
-        }
+        if (notesManager.dataLists.LongSMNT[laneindex].Count < 1) return;
+
+        notesManager.dataLists.QuadA[laneindex].RemoveAt(0);
+        notesManager.dataLists.LongSMNT[laneindex].RemoveAt(0);
+    }
+    
+    
+    public void InTheMiddle(int id)
+    {
+        touchStart[id].Quad.SetActive(false);
 
     }
     
