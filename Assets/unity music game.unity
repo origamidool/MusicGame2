@@ -871,9 +871,9 @@ Camera:
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.09480846
+    x: 0.09396434
     y: 0
-    width: 0.8103831
+    width: 0.8120713
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -2550,7 +2550,7 @@ MonoBehaviour:
   ratioScore: 0
   maxScore: 0
   songID: 0
-  noteSpeed: 15
+  noteSpeed: 3
   Start: 0
   StartTime: 0
   combo: 0
@@ -5305,9 +5305,9 @@ Camera:
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.09480846
+    x: 0.09396434
     y: 0
-    width: 0.8103831
+    width: 0.8120713
     height: 1
   near clip plane: 4.15
   far clip plane: 1000

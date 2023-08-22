@@ -47,6 +47,7 @@ public class DataLists
     public List<NoteInfo>[] LongMNT;//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
     public List<float>[] StartL;//始点のノーツタイム
     public List<GameObject>[] StartObj;
+    public List<GameObject>[] MEObj;
 }
 
 
@@ -311,6 +312,7 @@ public class NotesManager : MonoBehaviour
         dataLists.QuadA = new List<QuadInfo>[7];//new!
         dataLists.LongMNT = new List<NoteInfo>[7];
         dataLists.StartObj = new List<GameObject>[7];
+        dataLists.MEObj = new List<GameObject>[7];
         dataLists.StartL = new List<float>[7];
         for (int i = 0; i < 7; i++)
         {
@@ -318,6 +320,7 @@ public class NotesManager : MonoBehaviour
             dataLists.QuadA[i] = new List<QuadInfo>();
             dataLists.LongMNT[i] = new List<NoteInfo>();
             dataLists.StartObj[i] = new List<GameObject>();
+            dataLists.MEObj[i] = new List<GameObject>();
             dataLists.StartL[i] = new List<float>();
         }
 
@@ -359,7 +362,7 @@ public class NotesManager : MonoBehaviour
        
 
             float Sample_z = (SampleLtime) * gManager.noteSpeed;
-            SampleObj.Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].block - 3, 0.55f, Sample_z), Quaternion.identity));
+            dataLists.StartObj[container.notes[L[a]].block].Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].block - 3, 0.55f, Sample_z), Quaternion.identity));
 
             Vector3[] upperVec3 = new Vector3[2];
             upperVec3[0] = new Vector3(container.notes[L[a]].block - 3.5f, 0.55f, Sample_z);
@@ -390,7 +393,7 @@ public class NotesManager : MonoBehaviour
                 Middletimes[i] = Middletime;
 
                 float Middle_z = (Middletime) * gManager.noteSpeed;
-                MandEObj.Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].notes[i].block - 3, 0.55f, Middle_z), Quaternion.identity));
+                dataLists.MEObj[container.notes[L[a]].notes[i].block].Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].notes[i].block - 3, 0.55f, Middle_z), Quaternion.identity));
 
                 lowerVec3[0] = new Vector3(container.notes[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
                 lowerVec3[1] = new Vector3(container.notes[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
