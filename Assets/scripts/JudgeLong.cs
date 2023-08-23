@@ -38,14 +38,7 @@ public class JudgeLong : MonoBehaviour
         
     };
     
-    Dictionary<int, bool> isTouching = new Dictionary<int, bool>()
-    {
-        {0,false },
-        {1,false },
-        {2,false },
-        {3,false },
-        {4,false },
-    };
+   
     Dictionary<int, bool> isAdded = new Dictionary<int, bool>()
     {
         {0,false },
@@ -89,7 +82,7 @@ public class JudgeLong : MonoBehaviour
 
             if (touch.phase == TouchPhase.Began)
             {
-                isTouching[id] = true;
+                
 
                 Ray ray = raycastCamera.ScreenPointToRay(touch.position);
 
@@ -106,30 +99,37 @@ public class JudgeLong : MonoBehaviour
                         if (result.gameObject.CompareTag(light.cubeTag0))//左端のレーン 格レーンについたタグ(canvasのbutton（透明）についてる)に当たったら
                         {
                             JCheck(0);//レーンが正しいか判断する関数
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag1))
                         {
                             JCheck(1);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag2))
                         {
                             JCheck(2);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag3))
                         {
                             JCheck(3);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag4))
                         {
                             JCheck(4);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag5))
                         {
                             JCheck(5);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag6))//右端
                         {
                             JCheck(6);
+                            break;
                         }
                     }
 
@@ -137,7 +137,7 @@ public class JudgeLong : MonoBehaviour
             }
             if(touch.phase == TouchPhase.Ended)
             {
-                isTouching[id] = false;
+                
 
                 Ray ray = raycastCamera.ScreenPointToRay(touch.position);
 
@@ -154,36 +154,43 @@ public class JudgeLong : MonoBehaviour
                         if (result.gameObject.CompareTag(light.cubeTag0))//0レーン
                         {
                             Check(0,id);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
                         {
                             Check(1,id);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
                         {
                             Check(2,id);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
                         {
                             Check(3,id);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
                         {
                             Check(4,id);
+                            break;
 
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
                         {
                             Check(5,id);
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
                         {
                             Check(6,id);
+                            break;
                         }
                     }
                 }
             }
-            if (isTouching[id])
+            if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
             {
                 Hray = raycastCamera.ScreenPointToRay(touch.position);
 
@@ -203,44 +210,45 @@ public class JudgeLong : MonoBehaviour
                         {
                             CheckLayer(0, id);
                             CheckLaneHit(0,id);
+                            break;
                            
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag1))//1レーン
                         {
                             CheckLayer(1, id);
                             CheckLaneHit(1,id);
-                            
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag2))//2レーン
                         {
                             CheckLayer(2, id);
                             CheckLaneHit(2,id);
-                           
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag3))//3レーン
                         {
                             CheckLayer(3, id);
                             CheckLaneHit(3,id);
-                           
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag4))//4レーン
                         {
                             CheckLayer(4, id);
                             CheckLaneHit(4,id);
-                            
+                            break;
 
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag5))//5レーン
                         {
                             CheckLayer(5, id);
                             CheckLaneHit(5,id);
-                            
+                            break;
                         }
                         else if (result.gameObject.CompareTag(light.cubeTag6))//6レーン
                         {
                             CheckLayer(6, id);
                             CheckLaneHit(6,id);
-                            
+                            break;
 
                         }
                     }
@@ -293,6 +301,7 @@ public class JudgeLong : MonoBehaviour
         gManager.miss++;
         gManager.combo = 0;
         //ミス
+        Debug.Log("すたーとみす" + laneindex);
     }
 
     public void HandleMiss(int LaneIndex)
@@ -307,7 +316,7 @@ public class JudgeLong : MonoBehaviour
         Debug.Log("Miss");
         gManager.miss++;
         gManager.combo = 0;
-        
+        Debug.Log("ちゅーかんみす" + LaneIndex);
         //ミス
     }
 
@@ -328,7 +337,8 @@ public class JudgeLong : MonoBehaviour
         {
             if (touchStart[id] != null)
             {
-                if (GetABS(Time.time - (touchStart[id].endtime + gManager.StartTime)) <= 0.00250f) isAdded[id] = false;
+                if (GetABS(Time.time - (touchStart[id].endtime + gManager.StartTime)) <= 0.050f) isAdded[id] = false;
+            
             }
         }
 
@@ -363,10 +373,10 @@ public class JudgeLong : MonoBehaviour
     public void CheckLaneHit(int laneIndex,int id)//指が触れている時
     {
 
-        
-        if (notesManager.dataLists.LongMNT[laneIndex].Count < 1) return;//要素がなかったら帰る
 
-        if (0.00250f >= GetABS(Time.time - (notesManager.dataLists.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
+        if (notesManager.dataLists.LongMNT[laneIndex].Count == 0) return;//要素がなかったら帰る
+
+        if (0.01500f >= GetABS(Time.time - (notesManager.dataLists.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
         {
             GetComponent<AudioSource>().PlayOneShot(longhitSound);
             Debug.Log("Perfect");
