@@ -2550,7 +2550,7 @@ MonoBehaviour:
   ratioScore: 0
   maxScore: 0
   songID: 0
-  noteSpeed: 3
+  noteSpeed: 15
   Start: 0
   StartTime: 0
   combo: 0
