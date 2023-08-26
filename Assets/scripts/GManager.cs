@@ -27,9 +27,12 @@ public class GManager : MonoBehaviour
 
     public float grace = 0.0f;
 
+    [SerializeField] public int[] isLighting;
+    
+
     public void Awake()
     {
-        
+        isLighting = new int[] { -1, -1, -1, -1, -1 };//light用
 
         if (instance == null)
         {
