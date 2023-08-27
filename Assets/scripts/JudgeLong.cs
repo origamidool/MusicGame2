@@ -25,7 +25,7 @@ public class JudgeLong : MonoBehaviour
   
     public Camera raycastCamera;//メインカメラ
 
-
+    CalculateScore calculate = new CalculateScore();
 
 
     Dictionary<int, QuadInfo> touchStart = new Dictionary<int, QuadInfo>()
@@ -68,7 +68,7 @@ public class JudgeLong : MonoBehaviour
         
     }
 
-    public void ProcessInput()
+    private void ProcessInput()
     {
         
 
@@ -294,22 +294,22 @@ public class JudgeLong : MonoBehaviour
     public void StartMiss(int laneindex)
     {
         message(3);
-        RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-        gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
+        
+        gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//小数点以下を四捨五入
         deleteData(laneindex);
         Debug.Log("Miss");
         gManager.miss++;
         gManager.combo = 0;
         //ミス
-        Debug.Log("すたーとみす" + laneindex);
+      
     }
 
     public void HandleMiss(int LaneIndex)
     {
         message(3);
 
-        RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-        gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
+        
+        gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//小数点以下を四捨五入
 
         
         MEdeleteData(LaneIndex);
@@ -381,8 +381,8 @@ public class JudgeLong : MonoBehaviour
             GetComponent<AudioSource>().PlayOneShot(longhitSound);
             Debug.Log("Perfect");
             message(0);
-            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
+           
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
 
             gManager.perfect++;
             gManager.combo++;
@@ -400,12 +400,16 @@ public class JudgeLong : MonoBehaviour
         {
             Debug.Log("Perfect");
             message(0);
-            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
             
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
             gManager.perfect++;
             gManager.combo++;
             deleteData(laneindex);
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
             return;
         }
         
@@ -413,12 +417,16 @@ public class JudgeLong : MonoBehaviour
         {
             Debug.Log("Great");
             message(1);
-            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
            
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
             gManager.great++;
             gManager.combo++;
             deleteData(laneindex);
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
             return;
         }
            
@@ -426,12 +434,16 @@ public class JudgeLong : MonoBehaviour
         {
             Debug.Log("Bad");
             message(2);
-            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
-           
+            
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
             gManager.bad++;
             gManager.combo = 0;
             deleteData(laneindex);
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
             return;
         }
             
@@ -449,14 +461,18 @@ public class JudgeLong : MonoBehaviour
         {
             Debug.Log("Perfect");
             message(0);
-            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
            
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
             gManager.perfect++;
             gManager.combo++;
             
             MEdeleteData(Index);
-            
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
+
             return;
         }
         
@@ -464,12 +480,16 @@ public class JudgeLong : MonoBehaviour
         {
             Debug.Log("Great");
             message(1);
-            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
-           
+         
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
             gManager.great++;
             gManager.combo++;
-           
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
+
             MEdeleteData(Index);
             
             return;
@@ -479,13 +499,16 @@ public class JudgeLong : MonoBehaviour
         {
             Debug.Log("Bad");
             message(2);
-            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
             
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
             gManager.bad++;
             gManager.combo = 0;
-           
-           
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
+
             MEdeleteData(Index);
             
             return;
@@ -498,14 +521,18 @@ public class JudgeLong : MonoBehaviour
             InTheMiddle(id);
             message(3);
 
-            RawScore = (gManager.perfect + gManager.great * 0.65f) / notesManager.noteNum * 900000 + Jjudge.MC / notesManager.noteNum * 100000;
-            gManager.ratioScore = (float)Math.Round((float)RawScore, 0, MidpointRounding.AwayFromZero);//小数点以下を四捨五入
+            
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
 
 
             DeleteME(touchStart[id].endlane,id);
             Debug.Log("Miss");
             gManager.miss++;
             gManager.combo = 0;
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
 
             //ミス
             return;

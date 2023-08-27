@@ -25,14 +25,16 @@ public class GManager : MonoBehaviour
     public int bad;
     public int miss;
 
-    public float grace = 0.0f;
+    public int MC;//MaxCombo
 
-    [SerializeField] public int[] isLighting;
+    public float grace = 0.0f;//開始まで
+
+    public bool AutoPlay = false;
     
 
     public void Awake()
     {
-        isLighting = new int[] { -1, -1, -1, -1, -1 };//light用
+        
 
         if (instance == null)
         {

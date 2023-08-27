@@ -142,7 +142,7 @@ public class NotesManager : MonoBehaviour
 
 
 
-
+    public List<float>[] NoteTime;
 
 
 
@@ -314,6 +314,9 @@ public class NotesManager : MonoBehaviour
         dataLists.StartObj = new List<GameObject>[7];
         dataLists.MEObj = new List<GameObject>[7];
         dataLists.StartL = new List<float>[7];
+
+        NoteTime = new List<float>[7];
+
         for (int i = 0; i < 7; i++)
         {
             dataLists.LongSMNT[i] = new List<float>();
@@ -322,6 +325,8 @@ public class NotesManager : MonoBehaviour
             dataLists.StartObj[i] = new List<GameObject>();
             dataLists.MEObj[i] = new List<GameObject>();
             dataLists.StartL[i] = new List<float>();
+
+            NoteTime[i] = new List<float>();
         }
 
 
@@ -334,9 +339,10 @@ public class NotesManager : MonoBehaviour
             float NbeatSec = Nkankaku * (float)container.notes[N[u]].lpb;
             float Ntime = Nkankaku * container.notes[N[u]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
-            NormalNT.Add(Ntime);
-            NormalLN.Add(container.notes[N[u]].block);
-            float Nz = NormalNT[u] * gManager.noteSpeed;
+            NoteTime[container.notes[N[u]].block].Add(Ntime);
+
+            
+            float Nz = Ntime * gManager.noteSpeed;
 
             NotesObj.Add(Instantiate(noteObj, new Vector3(container.notes[N[u]].block - 3, 0.55f, Nz), Quaternion.identity));
 

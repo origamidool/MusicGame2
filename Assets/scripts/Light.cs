@@ -30,7 +30,7 @@ public class Light : MonoBehaviour
     private float[] alfa = new float[] {0,0,0,0,0,0,0};
     void Start()
     {
-        isLighting = new int[] { -1, -1, -1, -1, -1 };//light用
+        isLighting = new int[] { -1, -1, -1, -1, -1, -1, -1};//light用
         
         
 
@@ -86,70 +86,63 @@ public class Light : MonoBehaviour
                     {
                         if (result.gameObject.CompareTag(cubeTag0))//左端のレーン 格レーンについたタグ(canvasのbutton（透明）についてる)に当たったら
                         {
-                            
-                            if (num == 1)
-                            {
-                                colorChange(id, true,0);
 
-                                break;
 
-                            }
+                            colorChange(id, true, 0);
+
+                            break;
+
+
                         }
                         else if (result.gameObject.CompareTag(cubeTag1))
                         {
-                            if (num == 2)
-                            {
-                                colorChange(id, true,1);
 
-                                break;
-                            }
+                            colorChange(id, true, 1);
+
+                            break;
+
                         }
                         else if (result.gameObject.CompareTag(cubeTag2))
                         {
-                            if (num == 3)
-                            {
-                                colorChange(id, true,2);
 
-                                break;
-                            }
+                            colorChange(id, true, 2);
+
+                            break;
+
                         }
                         else if (result.gameObject.CompareTag(cubeTag3))
                         {
-                            if (num == 4)
-                            {
-                                colorChange(id, true,3);
 
-                                break;
-                            }
+                            colorChange(id, true, 3);
+
+                            break;
                         }
+                    
                         else if (result.gameObject.CompareTag(cubeTag4))
                         {
-                            if (num == 5)
-                            {
-                               
-                                    colorChange(id, true,4);
-                                   
-                                    break;
-                                
-                            }
+                       
+
+                            colorChange(id, true, 4);
+
+                            break;
+
+                        
                         }
                         else if (result.gameObject.CompareTag(cubeTag5))
                         {
-                            if (num == 6)
-                            {
-                                colorChange(id, true,5);
+                        
+                            colorChange(id, true, 5);
 
-                                break;
-                            }
+                            break;
+                        
                         }
                         else if (result.gameObject.CompareTag(cubeTag6))//右端
                         {
-                            if (num == 7)
-                            {
-                                colorChange(id,true,6);
+                       
+                            colorChange(id, true, 6);
 
-                                break;
-                            }
+                            break;
+                        
                         }
                     }
 
@@ -197,12 +190,11 @@ public class Light : MonoBehaviour
                         }
                         else if (result.gameObject.CompareTag(cubeTag3))
                         {
-                            if (num == 4)
-                            {
+                            
                                 colorChange(id, false,3);
 
                                 break;
-                            }
+                            
                         }
                         else if (result.gameObject.CompareTag(cubeTag4))
                         {
@@ -244,11 +236,12 @@ public class Light : MonoBehaviour
         {
             if (isLighting[id] == laneindex) return;
         }
+           
+        
         isLighting[id] = laneindex;
         alfa[laneindex] = 0.3f;
         rend[laneindex].material.color = new Color(rend[laneindex].material.color.r, rend[laneindex].material.color.g, rend[laneindex].material.color.b, alfa[laneindex]);
     }
+   
 
-    
-    
 }
