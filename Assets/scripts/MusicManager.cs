@@ -8,7 +8,7 @@ public class MusicManager : MonoBehaviour
     public GManager gManager;
     [SerializeField] GameObject targetObj;
 
-    AudioSource audio;
+    
     AudioClip Music;
     CriAtomSource criAtomSource;
     

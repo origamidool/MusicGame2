@@ -7,7 +7,7 @@ public class JudgeDrag : MonoBehaviour
 {
 
     public NotesManager notesManager;
-    public Light light;
+    public Light Llight;
     public Judge judge;
 
     public bool isHolding = false;

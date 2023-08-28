@@ -22,6 +22,8 @@ public class JudgeLong : MonoBehaviour
     [SerializeField] AudioClip longhitSound;
     [SerializeField] private GameObject[] MessageObj;//プレイヤーに判定を伝えるゲームオブジェクト
 
+    private bool cL = false;
+
   
     public Camera raycastCamera;//メインカメラ
 
@@ -31,11 +33,16 @@ public class JudgeLong : MonoBehaviour
     Dictionary<int, QuadInfo> touchStart = new Dictionary<int, QuadInfo>()
     {
         {0, null },
+        {1, null },
         {2, null },
         {3, null },
         {4, null },
         {5, null },
-        
+        {6, null },
+        {7, null },
+        {8, null },
+        {9, null },
+        {10, null },
     };
     
    
@@ -46,31 +53,77 @@ public class JudgeLong : MonoBehaviour
         {2,false },
         {3,false },
         {4,false },
+        {6,false },
+        {7,false },
+        {8,false },
+        {9,false },
+        {10,false },
     };
 
 
     void Update()
     {
         if (!gManager.Start) return;//ゲームスタート
+        
 
-      
-        /*
-        StartJudge();
-        
-        MiddleJudge(isHolding);
-        
-        EndJudge();
-        */
+
         SearchMiss();
 
         ProcessInput();
-        
-        
+
+        AutoPlay();
+    }
+    private void AutoPlay()
+    {
+        if (!gManager.AutoPlay) return;
+        if(!cL)
+        {
+            cL = true;
+            for(int i = 0; i < 7; i++)
+            {
+                for(int j = 0; j < notesManager.dataLists.LongSMNT[i].Count; j++)
+                {
+                    notesManager.dataLists.QuadA[i][j].Quad.layer = 3;
+                }
+            }
+        }
+
+        for(int i = 0; i < 7; i++)
+        {
+            if (notesManager.dataLists.StartL[i].Count >= 1)//始点
+            {
+                if (0.020000f >= GetABS(Time.time - (notesManager.dataLists.StartL[i][0] + GManager.instance.StartTime)))
+                {
+                    Judgement(0, i);
+                }
+            }
+            if(notesManager.dataLists.LongMNT[i].Count >= 1)//中間点，終点
+            {
+                if (0.020000f >= GetABS(Time.time - (notesManager.dataLists.LongMNT[i][0].notestime + GManager.instance.StartTime)))
+                {
+                    GetComponent<AudioSource>().PlayOneShot(longhitSound);
+                    Debug.Log("Perfect");
+                    message(0);
+                    gManager.perfect++;
+                    gManager.combo++;
+
+                    if (gManager.MC < gManager.combo)//MaxComboを設定
+                    {
+                        gManager.MC = gManager.combo;
+                    }
+                    gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+                    
+                    
+                    MEdeleteData(i);
+                }
+            }
+            
+        }
     }
 
     private void ProcessInput()
     {
-        
+        if (gManager.AutoPlay) return;
 
         Ray Hray;
         PointerEventData HpointerEventData;
@@ -259,6 +312,7 @@ public class JudgeLong : MonoBehaviour
 
     public void SearchMiss()
     {
+        if (gManager.AutoPlay) return;
         for (int i = 0; i < notesManager.dataLists.StartL.Length; i++)
         {
             if (notesManager.dataLists.StartL[i].Count > 0 && Time.time > notesManager.dataLists.StartL[i][0] + 0.15f + gManager.StartTime)
@@ -291,7 +345,7 @@ public class JudgeLong : MonoBehaviour
 
 
 
-    public void StartMiss(int laneindex)
+    public void StartMiss(int laneindex)//始点のミス
     {
         message(3);
         
@@ -304,7 +358,7 @@ public class JudgeLong : MonoBehaviour
       
     }
 
-    public void HandleMiss(int LaneIndex)
+    public void HandleMiss(int LaneIndex)//中間点，終点のミス
     {
         message(3);
 
@@ -316,11 +370,11 @@ public class JudgeLong : MonoBehaviour
         Debug.Log("Miss");
         gManager.miss++;
         gManager.combo = 0;
-        Debug.Log("ちゅーかんみす" + LaneIndex);
+       
         //ミス
     }
 
-    public void CheckLayer(int laneIndex, int id)
+    public void CheckLayer(int laneIndex, int id)//帯のレイヤー変更
     {
         if (notesManager.dataLists.QuadA[laneIndex].Count < 1) return;
         if (notesManager.dataLists.LongSMNT[laneIndex].Count < 1) return;
@@ -331,7 +385,7 @@ public class JudgeLong : MonoBehaviour
 
     public void ChangeLayer(float timeLag, int laneindex, int id)//帯を見切れるようにする
     {
-        if (timeLag >= 0.15) return;
+        if (timeLag > 0.15) return;
         isAdded[id] = true;
         if (touchStart.ContainsKey(key: id))
         {
@@ -381,7 +435,11 @@ public class JudgeLong : MonoBehaviour
             GetComponent<AudioSource>().PlayOneShot(longhitSound);
             Debug.Log("Perfect");
             message(0);
-           
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
+
             gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
 
             gManager.perfect++;
@@ -401,7 +459,8 @@ public class JudgeLong : MonoBehaviour
             Debug.Log("Perfect");
             message(0);
             
-            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+            
+           
 
             gManager.perfect++;
             gManager.combo++;
@@ -410,6 +469,8 @@ public class JudgeLong : MonoBehaviour
             {
                 gManager.MC = gManager.combo;
             }
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+            
             return;
         }
         
@@ -417,8 +478,7 @@ public class JudgeLong : MonoBehaviour
         {
             Debug.Log("Great");
             message(1);
-           
-            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+          
 
             gManager.great++;
             gManager.combo++;
@@ -427,6 +487,8 @@ public class JudgeLong : MonoBehaviour
             {
                 gManager.MC = gManager.combo;
             }
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
             return;
         }
            
@@ -435,7 +497,8 @@ public class JudgeLong : MonoBehaviour
             Debug.Log("Bad");
             message(2);
             
-            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+           
+            
 
             gManager.bad++;
             gManager.combo = 0;
@@ -444,6 +507,7 @@ public class JudgeLong : MonoBehaviour
             {
                 gManager.MC = gManager.combo;
             }
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
             return;
         }
             
@@ -462,7 +526,7 @@ public class JudgeLong : MonoBehaviour
             Debug.Log("Perfect");
             message(0);
            
-            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+            
 
             gManager.perfect++;
             gManager.combo++;
@@ -472,7 +536,7 @@ public class JudgeLong : MonoBehaviour
             {
                 gManager.MC = gManager.combo;
             }
-
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
             return;
         }
         
@@ -481,7 +545,7 @@ public class JudgeLong : MonoBehaviour
             Debug.Log("Great");
             message(1);
          
-            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+           
 
             gManager.great++;
             gManager.combo++;
@@ -489,7 +553,7 @@ public class JudgeLong : MonoBehaviour
             {
                 gManager.MC = gManager.combo;
             }
-
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
             MEdeleteData(Index);
             
             return;
@@ -500,7 +564,7 @@ public class JudgeLong : MonoBehaviour
             Debug.Log("Bad");
             message(2);
             
-            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+            
 
             gManager.bad++;
             gManager.combo = 0;
@@ -508,13 +572,13 @@ public class JudgeLong : MonoBehaviour
             {
                 gManager.MC = gManager.combo;
             }
-
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
             MEdeleteData(Index);
             
             return;
                 
         }
-        if (timeLag <= 0.15) return;//
+       
 
         if(Time.time - GManager.instance.StartTime > touchStart[id].starttime)//正常に動作
         {
@@ -522,7 +586,7 @@ public class JudgeLong : MonoBehaviour
             message(3);
 
             
-            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+            
 
 
             DeleteME(touchStart[id].endlane,id);
@@ -533,7 +597,7 @@ public class JudgeLong : MonoBehaviour
             {
                 gManager.MC = gManager.combo;
             }
-
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
             //ミス
             return;
         }
@@ -562,21 +626,23 @@ public class JudgeLong : MonoBehaviour
         notesManager.dataLists.StartL[laneindex].RemoveAt(0);
         
 
-        gManager.score = (int)gManager.ratioScore;
-        //↑new
-        Jjudge.comboText.text = gManager.combo.ToString();//new!
-        Jjudge.scoreText.text = gManager.score.ToString();//new!
+       
     }
 
     public void MEdeleteData(int LaneIndex)
     {
+       
+
         if (notesManager.dataLists.LongMNT[LaneIndex].Count < 1) return;
         notesManager.dataLists.MEObj[LaneIndex][0].SetActive(false);
         notesManager.dataLists.MEObj[LaneIndex].RemoveAt(0);
         notesManager.dataLists.LongMNT[LaneIndex].RemoveAt(0);
+
     }
     public void DeleteME(int laneindex,int id)
     {
+       
+
         float endtime = touchStart[id].endtime;
         for(int i = 0; i < notesManager.dataLists.LongMNT[laneindex].Count; i++)
         {
@@ -584,6 +650,8 @@ public class JudgeLong : MonoBehaviour
             notesManager.dataLists.MEObj[laneindex][i].SetActive(false);
             notesManager.dataLists.MEObj[laneindex].RemoveAt(i);
             notesManager.dataLists.LongMNT[laneindex].RemoveAt(i);
+
+           
             break;
         }
     }
@@ -594,16 +662,21 @@ public class JudgeLong : MonoBehaviour
     public void DeleteQuadData(int laneindex)
     {
         if (notesManager.dataLists.LongSMNT[laneindex].Count < 1) return;
+       
 
         notesManager.dataLists.QuadA[laneindex].RemoveAt(0);
         notesManager.dataLists.LongSMNT[laneindex].RemoveAt(0);
+
+      
     }
     
     
     public void InTheMiddle(int id)
     {
         touchStart[id].Quad.SetActive(false);
+
        
+
 
     }
     

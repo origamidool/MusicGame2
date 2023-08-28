@@ -47,6 +47,10 @@ public class Judge : MonoBehaviour
 
     void Update()
     {
+        gManager.score = (int)gManager.ratioScore;
+        //↑new
+        comboText.text = gManager.combo.ToString();//new!
+        scoreText.text = gManager.score.ToString();//new!
         if (!gManager.Start) return;
 
         for (int i = 0; i < notesManager.NoteTime.Length; i++)//miss
@@ -62,7 +66,24 @@ public class Judge : MonoBehaviour
             Destroy(MsObj[0]);
             MsObj.RemoveAt(0);
         }
+
+        AutoPlay();
     }
+    private void AutoPlay()
+    {
+        if (!gManager.AutoPlay) return;
+
+        for (int i = 0; i < 7; i++)
+        {
+            if (notesManager.NoteTime[i].Count < 1) continue;
+                
+            if (0.015000f >= GetABS(Time.time - (notesManager.NoteTime[i][0] + GManager.instance.StartTime)))
+            {
+                Judgement(0, i);
+            }
+        }
+    }
+
     private void HandleMiss(int lane)
     {
         message(3);
@@ -218,10 +239,7 @@ public class Judge : MonoBehaviour
         notesManager.NormalNT.RemoveAt(lane);
         notesManager.NormalLN.RemoveAt(lane);
        
-        gManager.score = (int)gManager.ratioScore;
-        //↑new
-        comboText.text = gManager.combo.ToString();//new!
-        scoreText.text = gManager.score.ToString();//new!
+        
     }
 
     void message(int judge)//判定を表示する

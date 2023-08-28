@@ -41,7 +41,7 @@ public class QuadInfo
 [System.Serializable]
 public class DataLists
 {
-    [SerializeField]
+    
     public List<float>[] LongSMNT;//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
     public List<QuadInfo>[] QuadA;
     public List<NoteInfo>[] LongMNT;//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
@@ -57,22 +57,7 @@ public class NotesManager : MonoBehaviour
     public string jsonFilePath;//7月17日
 
 
-    public static NotesManager instance = null;
-
-    public void Awake()
-    {
-
-
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-    }
+   
 
 
 
