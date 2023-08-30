@@ -29,7 +29,8 @@ public class GManager : MonoBehaviour
 
     public float grace = 0.0f;//開始まで
 
-    public bool AutoPlay = false;
+    public bool AutoPlay = false;//オートプレイか通常プレイか
+    public int LaneLength = 7;//最大レーン　変わらないと思われるが
     
 
     public void Awake()

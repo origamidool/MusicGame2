@@ -236,8 +236,8 @@ public class Judge : MonoBehaviour
     }
     public void deleteData(int lane)//すでにたたいたノーツを削除する関数
     {
-        notesManager.NormalNT.RemoveAt(lane);
-        notesManager.NormalLN.RemoveAt(lane);
+        notesManager.NoteTime[lane].RemoveAt(0);
+        
        
         
     }

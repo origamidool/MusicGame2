@@ -15,7 +15,7 @@ MonoBehaviour:
   trySceneSettings: 0
   atomConfig:
     acfFileName: 
-    maxVirtualVoices: 32
+    maxVirtualVoices: 20
     maxVoiceLimitGroups: 32
     maxCategories: 32
     maxAisacs: 8

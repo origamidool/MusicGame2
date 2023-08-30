@@ -39,15 +39,15 @@ public class QuadInfo
 }
 
 [System.Serializable]
-public class DataLists
+public class DataLists//ロングノーツ関連
 {
     
     public List<float>[] LongSMNT;//始点と中間点(帯の始点)の時間が入ったレーンごとの配列
     public List<QuadInfo>[] QuadA;
     public List<NoteInfo>[] LongMNT;//中間点と終点(帯の終点)の時間が入ったレーン(中間点，終点の)ごとの配列 notestimeは中間点，終点の時間，laneは帯の始点のレーン
     public List<float>[] StartL;//始点のノーツタイム
-    public List<GameObject>[] StartObj;
-    public List<GameObject>[] MEObj;
+    public List<GameObject>[] StartObj;//始点のオブジェクト
+    public List<GameObject>[] MEObj;//中間点，終点のオブジェクト
 }
 
 
@@ -55,110 +55,42 @@ public class DataLists
 public class NotesManager : MonoBehaviour
 {
     public string jsonFilePath;//7月17日
-
-
-   
-
-
-
-
-    public Vector3[][] startPos;
-
-
     public GManager gManager;
-
-   
-
-
     public int noteNum;//総ノーツ数
     private string songName;
 
-    public List<int> LaneNum = new List<int>();
-    public List<int> NoteType = new List<int>();
-    public List<float> NotesTime = new List<float>();
-    public List<GameObject> NotesObj = new List<GameObject>();
+    private List<int> N = new List<int>();//インデックスを分けた物をいれる
+    private List<int> L = new List<int>();
+    private List<int> S = new List<int>();
+    private List<int> F = new List<int>();
+    private List<int> SL = new List<int>();
 
-    public List<float> LongNT = new List<float>();
-    public List<int> LongLN = new List<int>();
-   
-    public List<int> N = new List<int>();
-    public List<int> L = new List<int>();
-    public List<int> S = new List<int>();
-    public List<int> F = new List<int>();
-    public List<int> SL = new List<int>();
-    
+    private List<int> Flick = new List<int>();//フリックとスライドロングを分ける
+    private List<int> Srlong = new List<int>();
 
+    public List<float>[] NoteTime;//ノーマルノーツの時間　レーンごと
+    public List<float>[] SrideTime;//スライドノーツの時間　レーンごと
+    public List<float>[] FlickTime;//フリックノーツの時間　レーンごと
 
-    public List<float> NormalNT = new List<float>();
-    public List<int> NormalLN = new List<int>();
-
-    public List<float> FlickNT = new List<float>();
-    public List<int> FlickLN = new List<int>();
-
-
-    public List<GameObject> LongSObj = new List<GameObject>();
-    public List<GameObject> LongObj = new List<GameObject>();
-    public List<GameObject> LongEObj = new List<GameObject>();
-
-    public List<GameObject> SLongSObj = new List<GameObject>();
-    public List<GameObject> SLongObj = new List<GameObject>();
-    public List<GameObject> SLongEObj = new List<GameObject>();
-
-    public List<GameObject> FlickObjlist = new List<GameObject>();
-
-
-
-
-
-    public List<float> SrideNT = new List<float>();
-    public List<int> SrideLN = new List<int>();
-
-    public List<float> LongLNT = new List<float>();
-
-    public List<float> LNT = new List<float>();
-    public List<float> LLNT = new List<float>();
-
-
-    public List<float> SLongNT = new List<float>();
-    
-
-    public List<int> Flick = new List<int>();//7/20使用中を確認
-    public List<int> Srlong = new List<int>();//7/20使用中を確認
-
-
-
-    public List<float>[] NoteTime;
-
+    public List<GameObject>[] NoteObject;//ノーマルノーツのオブジェクト　レーンごと
+    public List<GameObject>[] SrideObject;//スライドノーツのオブジェクト　レーンごと
+    public List<GameObject>[] FlickObject;//フリックノーツのオブジェクト　レーンごと
 
 
     [SerializeField] private float NotesSpeed;
     [SerializeField] private GameObject noteObj;
 
    
-    [SerializeField] private GameObject SridenoteObj;//7/20使用中を確認
+    [SerializeField] private GameObject SridenoteObj;//スライドノーツのオブジェクト
 
    
-    [SerializeField] private GameObject FlObj;//7/20使用を確認
+    [SerializeField] private GameObject FlObj;//フリックノーツのオブジェクト
 
-    [SerializeField] private GameObject SampleLong;//7/18火
-   
-    public List<GameObject> SampleObj = new List<GameObject>();
+    [SerializeField] private GameObject SampleLong;//ロングノーツの始点
 
-    public List<GameObject> MandEObj = new List<GameObject>();//中間点と終点のオブジェクト
-  
+    public DataLists dataLists;//ロングノーツのデータ
 
-
-    public List<GameObject> SrideObj = new List<GameObject>();
-
-
-
-    public DataLists dataLists;
-
-
-
-    
-
-    [SerializeField] private float tapLag = 0;
+    [SerializeField] private float tapLag = 0;//オフセット調整
 
     void OnEnable()
     {
@@ -180,13 +112,7 @@ public class NotesManager : MonoBehaviour
         string jsonString = System.IO.File.ReadAllText(jsonFilePath);
         JaggedArrayContainer container = JsonUtility.FromJson<JaggedArrayContainer>(jsonString);
 
-        
        
-
-       
-        gManager.maxScore = noteNum * 5;//new!!
-
-        
         int[] notestype;
 
         for (int i = 0; i < container.notes.Length; i++)
@@ -301,6 +227,12 @@ public class NotesManager : MonoBehaviour
         dataLists.StartL = new List<float>[7];
 
         NoteTime = new List<float>[7];
+        SrideTime = new List<float>[7];
+        FlickTime = new List<float>[7];
+
+        NoteObject = new List<GameObject>[7];
+        SrideObject = new List<GameObject>[7];
+        FlickObject = new List<GameObject>[7];
 
         for (int i = 0; i < 7; i++)
         {
@@ -312,6 +244,12 @@ public class NotesManager : MonoBehaviour
             dataLists.StartL[i] = new List<float>();
 
             NoteTime[i] = new List<float>();
+            SrideTime[i] = new List<float>();
+            FlickTime[i] = new List<float>();
+
+            NoteObject[i] = new List<GameObject>();
+            SrideObject[i] = new List<GameObject>();
+            FlickObject[i] = new List<GameObject>();
         }
 
 
@@ -329,7 +267,7 @@ public class NotesManager : MonoBehaviour
             
             float Nz = Ntime * gManager.noteSpeed;
 
-            NotesObj.Add(Instantiate(noteObj, new Vector3(container.notes[N[u]].block - 3, 0.55f, Nz), Quaternion.identity));
+            NoteObject[container.notes[N[u]].block].Add(Instantiate(noteObj, new Vector3(container.notes[N[u]].block - 3, 0.55f, Nz), Quaternion.identity));
 
             if(u == 0)//総ノーツ数を求める為
             {
@@ -455,12 +393,14 @@ public class NotesManager : MonoBehaviour
             float Skankaku = 60 / (container.bpm * (float)container.notes[S[s]].lpb);
             float SbeatSec = Skankaku * (float)container.notes[S[s]].lpb;
             float Stime = Skankaku * container.notes[S[s]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
-            SrideNT.Add(Stime);
-            SrideLN.Add(container.notes[S[s]].block);
-            float Sz = SrideNT[s] * gManager.noteSpeed;
+
+            SrideTime[container.notes[S[s]].block].Add(Stime);
+
+           
+            float Sz = Stime * gManager.noteSpeed;
 
 
-            SrideObj.Add(Instantiate(SridenoteObj, new Vector3(container.notes[S[s]].block - 3, 0.55f, Sz), Quaternion.identity));
+            SrideObject[container.notes[S[s]].block].Add(Instantiate(SridenoteObj, new Vector3(container.notes[S[s]].block - 3, 0.55f, Sz), Quaternion.identity));
 
             if(s == 0)
             {
@@ -470,10 +410,10 @@ public class NotesManager : MonoBehaviour
 
         for (int f = 0; f < F.Count; f++)
         {
-            int flick = 1;
-            int srlong = 6;
+            int flick = 31;
+            int srlong = 32;
             int[] f_or_sl = new int[F.Count];
-            f_or_sl[f] = (int)container.notes[F[f]].notes[0].block;
+            f_or_sl[f] = (int)container.notes[F[f]].notes[0].lpb;
 
             int numf = Array.IndexOf(f_or_sl, flick);
             int numsrl = Array.IndexOf(f_or_sl, srlong);
@@ -523,11 +463,12 @@ public class NotesManager : MonoBehaviour
             float FbeatSec = Fkankaku * (float)container.notes[F[Flick[ff]]].lpb;
             float Ftime = Fkankaku * container.notes[F[Flick[ff]]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
-            FlickNT.Add(Ftime);
-            FlickLN.Add(container.notes[F[Flick[ff]]].block);
-            float Fz = FlickNT[ff] * gManager.noteSpeed;
+            FlickTime[container.notes[F[Flick[ff]]].block].Add(Ftime);
 
-            FlickObjlist.Add(Instantiate(FlObj, new Vector3(container.notes[F[Flick[ff]]].block - 3, 0.55f, Fz), Quaternion.identity));
+            
+            float Fz = Ftime * gManager.noteSpeed;
+
+            FlickObject[container.notes[F[Flick[ff]]].block].Add(Instantiate(FlObj, new Vector3(container.notes[F[Flick[ff]]].block - 3, 0.55f, Fz), Quaternion.identity));
 
             if(ff == 0)
             {
@@ -535,7 +476,7 @@ public class NotesManager : MonoBehaviour
             }
 
         }
-
+        
         
     }
 } 
