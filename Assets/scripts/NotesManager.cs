@@ -11,14 +11,15 @@ public class JaggedArrayContainer
 {
     public float bpm;
     public int offset;
-    public List<Notegpt[]> notes;
+    public List<Notegpt>[] notes;
+    
    
 }
 
 [System.Serializable]
 public class NotesLevel
 {
-    public List<List<Notegpt>> notes;
+    public Notegpt[] notes;
 }
 
 [System.Serializable]
@@ -124,10 +125,10 @@ public class NotesManager : MonoBehaviour
        
         int[] notestype;
 
-        for (int i = 0; i < container.notes[Level].Length; i++)
+        for (int i = 0; i < container.notes[Level].Count; i++)
         {
 
-            notestype = new int[container.notes[Level].Length];
+            notestype = new int[container.notes[Level].Count];
             notestype[i] = container.notes[Level][i].type;
             int target = 1;
             int targetL = 2;
