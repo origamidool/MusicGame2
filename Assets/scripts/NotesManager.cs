@@ -11,10 +11,16 @@ public class JaggedArrayContainer
 {
     public float bpm;
     public int offset;
+    public NotesLevel[] notes;
+}
+
+[System.Serializable]
+public class NotesLevel
+{
     public Notegpt[] notes;
 }
 
-[System.Serializable]//7/21
+[System.Serializable]
 public class Notegpt
 {
     public int type;
@@ -97,29 +103,31 @@ public class NotesManager : MonoBehaviour
         NotesSpeed = gManager.noteSpeed;
         noteNum = 0;
         songName = "Grievous Lady(Arcaea)";
-        Load(songName);
+        gManager.Level = 0;
+        Load(songName, gManager.Level);
 
     }
 
     private int[] type1;
 
-    
+    [SerializeField] JaggedArrayContainer container;
 
-    
-    private void Load(string SongName)
+
+
+    private void Load(string SongName,int Level)
     {
         jsonFilePath = "Assets/Resources/" + SongName + ".json";
         string jsonString = System.IO.File.ReadAllText(jsonFilePath);
-        JaggedArrayContainer container = JsonUtility.FromJson<JaggedArrayContainer>(jsonString);
+        container = JsonUtility.FromJson<JaggedArrayContainer>(jsonString);
 
        
         int[] notestype;
 
-        for (int i = 0; i < container.notes.Length; i++)
+        for (int i = 0; i < container.notes[Level].notes.Length; i++)
         {
 
-            notestype = new int[container.notes.Length];
-            notestype[i] = container.notes[i].type;
+            notestype = new int[container.notes[Level].notes.Length];
+            notestype[i] = container.notes[Level].notes[i].type;
             int target = 1;
             int targetL = 2;
             int targetS = 3;
@@ -258,16 +266,16 @@ public class NotesManager : MonoBehaviour
         for (int u = 0; u < N.Count; u++) //タップノーツ
         {
 
-            float Nkankaku = 60 / (container.bpm * (float)container.notes[N[u]].lpb);
-            float NbeatSec = Nkankaku * (float)container.notes[N[u]].lpb;
-            float Ntime = Nkankaku * container.notes[N[u]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
+            float Nkankaku = 60 / (container.bpm * (float)container.notes[Level].notes[N[u]].lpb);
+            float NbeatSec = Nkankaku * (float)container.notes[Level].notes[N[u]].lpb;
+            float Ntime = Nkankaku * container.notes[Level].notes[N[u]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
-            NoteTime[container.notes[N[u]].block].Add(Ntime);
+            NoteTime[container.notes[Level].notes[N[u]].block].Add(Ntime);
 
             
             float Nz = Ntime * gManager.noteSpeed;
 
-            NoteObject[container.notes[N[u]].block].Add(Instantiate(noteObj, new Vector3(container.notes[N[u]].block - 3, 0.55f, Nz), Quaternion.identity));
+            NoteObject[container.notes[Level].notes[N[u]].block].Add(Instantiate(noteObj, new Vector3(container.notes[Level].notes[N[u]].block - 3, 0.55f, Nz), Quaternion.identity));
 
             if(u == 0)//総ノーツ数を求める為
             {
@@ -281,51 +289,51 @@ public class NotesManager : MonoBehaviour
         {
             //始点を生成
              
-            float Samplekankaku = 60 / (container.bpm * (float)container.notes[L[a]].lpb);
-            float SampleLtime = Samplekankaku * container.notes[L[a]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
+            float Samplekankaku = 60 / (container.bpm * (float)container.notes[Level].notes[L[a]].lpb);
+            float SampleLtime = Samplekankaku * container.notes[Level].notes[L[a]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
             
-            dataLists.StartL[container.notes[L[a]].block].Add(SampleLtime);
+            dataLists.StartL[container.notes[Level].notes[L[a]].block].Add(SampleLtime);
 
-            dataLists.LongSMNT[container.notes[L[a]].block].Add(SampleLtime);//帯レイヤー変更判定用 始点の時間をいれる
+            dataLists.LongSMNT[container.notes[Level].notes[L[a]].block].Add(SampleLtime);//帯レイヤー変更判定用 始点の時間をいれる
        
 
             float Sample_z = (SampleLtime) * gManager.noteSpeed;
-            dataLists.StartObj[container.notes[L[a]].block].Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].block - 3, 0.55f, Sample_z), Quaternion.identity));
+            dataLists.StartObj[container.notes[Level].notes[L[a]].block].Add(Instantiate(SampleLong, new Vector3(container.notes[Level].notes[L[a]].block - 3, 0.55f, Sample_z), Quaternion.identity));
 
             Vector3[] upperVec3 = new Vector3[2];
-            upperVec3[0] = new Vector3(container.notes[L[a]].block - 3.5f, 0.55f, Sample_z);
-            upperVec3[1] = new Vector3(container.notes[L[a]].block - 2.5f, 0.55f, Sample_z);
+            upperVec3[0] = new Vector3(container.notes[Level].notes[L[a]].block - 3.5f, 0.55f, Sample_z);
+            upperVec3[1] = new Vector3(container.notes[Level].notes[L[a]].block - 2.5f, 0.55f, Sample_z);
 
             if(a == 0)
             {
                 noteNum += L.Count;
             }
 
-            noteNum += container.notes[L[a]].notes.Length;
+            noteNum += container.notes[Level].notes[L[a]].notes.Length;
 
             
 
 
             int index = -1;
 
-            for (int i = 0; i < container.notes[L[a]].notes.Length; i++)//中間点，終点を生成
+            for (int i = 0; i < container.notes[Level].notes[L[a]].notes.Length; i++)//中間点，終点を生成
             {
                 index += 1;
                 Vector3[] lowerVec3 = new Vector3[2];
 
 
-                float Middlekankaku = 60 / (container.bpm * (float)container.notes[L[a]].notes[i].lpb);
-                float Middletime = Middlekankaku * container.notes[L[a]].notes[i].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
+                float Middlekankaku = 60 / (container.bpm * (float)container.notes[Level].notes[L[a]].notes[i].lpb);
+                float Middletime = Middlekankaku * container.notes[Level].notes[L[a]].notes[i].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
-                float[] Middletimes = new float[container.notes[L[a]].notes.Length];
+                float[] Middletimes = new float[container.notes[Level].notes[L[a]].notes.Length];
                 Middletimes[i] = Middletime;
 
                 float Middle_z = (Middletime) * gManager.noteSpeed;
-                dataLists.MEObj[container.notes[L[a]].notes[i].block].Add(Instantiate(SampleLong, new Vector3(container.notes[L[a]].notes[i].block - 3, 0.55f, Middle_z), Quaternion.identity));
+                dataLists.MEObj[container.notes[Level].notes[L[a]].notes[i].block].Add(Instantiate(SampleLong, new Vector3(container.notes[Level].notes[L[a]].notes[i].block - 3, 0.55f, Middle_z), Quaternion.identity));
 
-                lowerVec3[0] = new Vector3(container.notes[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
-                lowerVec3[1] = new Vector3(container.notes[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
+                lowerVec3[0] = new Vector3(container.notes[Level].notes[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
+                lowerVec3[1] = new Vector3(container.notes[Level].notes[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
 
                 Vector3[] lineVerticesVec3 = new Vector3[4];
 
@@ -343,18 +351,18 @@ public class NotesManager : MonoBehaviour
 
                 if(i == 0)
                 {
-                    dataLists.LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].block });//中間点のレーンの1番目に1番目の中間点の時間，始点のレーンをいれる
-                    dataLists.QuadA[container.notes[L[a]].block].Add(new QuadInfo { Quad = lineObj, starttime = SampleLtime, endtime = Middletime, startlane = container.notes[L[a]].block, endlane = container.notes[L[a]].notes[i].block });
+                    dataLists.LongMNT[container.notes[Level].notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[Level].notes[L[a]].block });//中間点のレーンの1番目に1番目の中間点の時間，始点のレーンをいれる
+                    dataLists.QuadA[container.notes[Level].notes[L[a]].block].Add(new QuadInfo { Quad = lineObj, starttime = SampleLtime, endtime = Middletime, startlane = container.notes[Level].notes[L[a]].block, endlane = container.notes[Level].notes[L[a]].notes[i].block });
                 }
-                if (i < container.notes[L[a]].notes.Length - 1)
+                if (i < container.notes[Level].notes[L[a]].notes.Length - 1)
                 {
-                    dataLists.LongSMNT[container.notes[L[a]].notes[i].block].Add(Middletime);//中間点の時間をいれる
+                    dataLists.LongSMNT[container.notes[Level].notes[L[a]].notes[i].block].Add(Middletime);//中間点の時間をいれる
                 }
                 if(i > 0)
                 {
-                    dataLists.LongMNT[container.notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[L[a]].notes[i - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
+                    dataLists.LongMNT[container.notes[Level].notes[L[a]].notes[i].block].Add(new NoteInfo { notestime = Middletime, lane = container.notes[Level].notes[L[a]].notes[i - 1].block });//中間点のレーンの2番目以降に中間点の時間，1つ前の中間点のレーンをいれる
 
-                    dataLists.QuadA[container.notes[L[a]].notes[i - 1].block].Add(new QuadInfo { Quad = lineObj, starttime = Middletimes[i - 1], endtime = Middletime , startlane = container.notes[L[a]].notes[i - 1].block, endlane = container.notes[L[a]].notes[i].block });
+                    dataLists.QuadA[container.notes[Level].notes[L[a]].notes[i - 1].block].Add(new QuadInfo { Quad = lineObj, starttime = Middletimes[i - 1], endtime = Middletime , startlane = container.notes[Level].notes[L[a]].notes[i - 1].block, endlane = container.notes[Level].notes[L[a]].notes[i].block });
 
                     
 
@@ -377,8 +385,8 @@ public class NotesManager : MonoBehaviour
 
                 lineObj.GetComponent<MeshFilter>().mesh = mesh;
 
-                upperVec3[0] = new Vector3(container.notes[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
-                upperVec3[1] = new Vector3(container.notes[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
+                upperVec3[0] = new Vector3(container.notes[Level].notes[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
+                upperVec3[1] = new Vector3(container.notes[Level].notes[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
 
                
             }
@@ -390,17 +398,17 @@ public class NotesManager : MonoBehaviour
         for (int s = 0; s < S.Count; s++) //スライドノーツ
         {
 
-            float Skankaku = 60 / (container.bpm * (float)container.notes[S[s]].lpb);
-            float SbeatSec = Skankaku * (float)container.notes[S[s]].lpb;
-            float Stime = Skankaku * container.notes[S[s]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
+            float Skankaku = 60 / (container.bpm * (float)container.notes[Level].notes[S[s]].lpb);
+            float SbeatSec = Skankaku * (float)container.notes[Level].notes[S[s]].lpb;
+            float Stime = Skankaku * container.notes[Level].notes[S[s]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
-            SrideTime[container.notes[S[s]].block].Add(Stime);
+            SrideTime[container.notes[Level].notes[S[s]].block].Add(Stime);
 
            
             float Sz = Stime * gManager.noteSpeed;
 
 
-            SrideObject[container.notes[S[s]].block].Add(Instantiate(SridenoteObj, new Vector3(container.notes[S[s]].block - 3, 0.55f, Sz), Quaternion.identity));
+            SrideObject[container.notes[Level].notes[S[s]].block].Add(Instantiate(SridenoteObj, new Vector3(container.notes[Level].notes[S[s]].block - 3, 0.55f, Sz), Quaternion.identity));
 
             if(s == 0)
             {
@@ -413,7 +421,7 @@ public class NotesManager : MonoBehaviour
             int flick = 31;
             int srlong = 32;
             int[] f_or_sl = new int[F.Count];
-            f_or_sl[f] = (int)container.notes[F[f]].notes[0].lpb;
+            f_or_sl[f] = (int)container.notes[Level].notes[F[f]].notes[0].lpb;
 
             int numf = Array.IndexOf(f_or_sl, flick);
             int numsrl = Array.IndexOf(f_or_sl, srlong);
@@ -459,16 +467,16 @@ public class NotesManager : MonoBehaviour
 
         for(int ff = 0; ff < Flick.Count; ff++)
         {
-            float Fkankaku = 60 / (container.bpm * (float)container.notes[F[Flick[ff]]].lpb);
-            float FbeatSec = Fkankaku * (float)container.notes[F[Flick[ff]]].lpb;
-            float Ftime = Fkankaku * container.notes[F[Flick[ff]]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
+            float Fkankaku = 60 / (container.bpm * (float)container.notes[Level].notes[F[Flick[ff]]].lpb);
+            float FbeatSec = Fkankaku * (float)container.notes[Level].notes[F[Flick[ff]]].lpb;
+            float Ftime = Fkankaku * container.notes[Level].notes[F[Flick[ff]]].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
 
-            FlickTime[container.notes[F[Flick[ff]]].block].Add(Ftime);
+            FlickTime[container.notes[Level].notes[F[Flick[ff]]].block].Add(Ftime);
 
             
             float Fz = Ftime * gManager.noteSpeed;
 
-            FlickObject[container.notes[F[Flick[ff]]].block].Add(Instantiate(FlObj, new Vector3(container.notes[F[Flick[ff]]].block - 3, 0.55f, Fz), Quaternion.identity));
+            FlickObject[container.notes[Level].notes[F[Flick[ff]]].block].Add(Instantiate(FlObj, new Vector3(container.notes[Level].notes[F[Flick[ff]]].block - 3, 0.55f, Fz), Quaternion.identity));
 
             if(ff == 0)
             {
