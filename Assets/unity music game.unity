@@ -1079,7 +1079,7 @@ MonoBehaviour:
   _use3dPositioning: 1
   _freezeOrientation: 0
   _loop: 0
-  _volume: 0.09
+  _volume: 0.436
   _pitch: 0
   _androidUseLowLatencyVoicePool: 0
   need_to_player_update_all: 1
@@ -1267,6 +1267,33 @@ MonoBehaviour:
   FlObj: {fileID: 199263863}
   SampleLong: {fileID: 1745005125}
   tapLag: -10
+  container:
+    name: 
+    songInfo:
+      title: 
+      subtitle: 
+      artist: 
+      description: 
+      credit: 
+      music: 
+      banner: 
+      bg: 
+      illust: 
+      sampleStart: 
+      sampleLength: 
+      offset: 
+      baseBpm: 
+      cmod: 
+      luaScript: 
+    maxBlock: 0
+    bpm: 0
+    offset: 0
+    bpms: []
+    speeds: []
+    notes:
+      hard: []
+      normal: []
+      easy: []
 --- !u!4 &495515117
 Transform:
   m_ObjectHideFlags: 0
@@ -2426,6 +2453,7 @@ MonoBehaviour:
   grace: 4
   AutoPlay: 1
   LaneLength: 7
+  Level: 0
 --- !u!1 &989638732
 GameObject:
   m_ObjectHideFlags: 0
