@@ -27,7 +27,7 @@ public class Judge : MonoBehaviour
     public float RawScore;
 
     //変数の宣言
-    [SerializeField] private GameObject[] MessageObj;//プレイヤーに判定を伝えるゲームオブジェクト
+    [SerializeField] public GameObject[] MessageObj;//プレイヤーに判定を伝えるゲームオブジェクト
     [SerializeField] NotesManager notesManager;//スクリプト「notesManager」を入れる変数
 
     [SerializeField] public TextMeshProUGUI comboText;
@@ -236,10 +236,12 @@ public class Judge : MonoBehaviour
     }
     public void deleteData(int lane)//すでにたたいたノーツを削除する関数
     {
+        if (notesManager.NoteTime[lane].Count <= 0) return;
         notesManager.NoteTime[lane].RemoveAt(0);
-        
-       
-        
+        notesManager.NoteObject[lane][0].SetActive(false);
+        notesManager.NoteObject[lane].RemoveAt(0);
+
+
     }
 
     void message(int judge)//判定を表示する

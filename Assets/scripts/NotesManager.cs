@@ -105,7 +105,7 @@ public class NotesManager : MonoBehaviour
     public int noteNum;//総ノーツ数
     private string songName;
 
-    private Dictionary<int, Notegpt[]> NotesData;
+    
 
     private List<int> N = new List<int>();//インデックスを分けた物をいれる
     private List<int> L = new List<int>();

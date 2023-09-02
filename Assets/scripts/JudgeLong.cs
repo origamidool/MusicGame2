@@ -435,6 +435,8 @@ public class JudgeLong : MonoBehaviour
             GetComponent<AudioSource>().PlayOneShot(longhitSound);
             Debug.Log("Perfect");
             message(0);
+            gManager.perfect++;
+            gManager.combo++;
             if (gManager.MC < gManager.combo)//MaxComboを設定
             {
                 gManager.MC = gManager.combo;
@@ -442,8 +444,7 @@ public class JudgeLong : MonoBehaviour
 
             gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
 
-            gManager.perfect++;
-            gManager.combo++;
+           
             MEdeleteData(laneIndex);
         }
     }
