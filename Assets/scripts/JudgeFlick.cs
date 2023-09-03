@@ -19,6 +19,7 @@ public class JudgeFlick : MonoBehaviour
 
     private void Update()
     {
+        if (!gManager.Start) return;//ゲームスタート
         AutoPlay();
         SearchMiss();
         ProcessInput();
@@ -31,7 +32,7 @@ public class JudgeFlick : MonoBehaviour
         {
             if (notesManager.FlickTime[i].Count > 0)
             {
-                if (0.000f !> Time.time - (notesManager.FlickTime[i][0] + GManager.instance.StartTime))
+                if (0.000f <= Time.time - (notesManager.FlickTime[i][0] + GManager.instance.StartTime))
                 {
                     if (0.0500f >= Time.time - (notesManager.FlickTime[i][0] + GManager.instance.StartTime))
                     {

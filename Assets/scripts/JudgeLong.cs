@@ -97,25 +97,29 @@ public class JudgeLong : MonoBehaviour
                     Judgement(0, i);
                 }
             }
-            if(notesManager.dataLists.LongMNT[i].Count >= 1)//中間点，終点
+            if(notesManager.dataLists.LongMNT[i].Count > 0)//中間点，終点
             {
-                if (0.020000f >= GetABS(Time.time - (notesManager.dataLists.LongMNT[i][0].notestime + GManager.instance.StartTime)))
+                if(0.00000f <= Time.time - (notesManager.dataLists.LongMNT[i][0].notestime + GManager.instance.StartTime))
                 {
-                    GetComponent<AudioSource>().PlayOneShot(longhitSound);
-                    Debug.Log("Perfect");
-                    message(0);
-                    gManager.perfect++;
-                    gManager.combo++;
-
-                    if (gManager.MC < gManager.combo)//MaxComboを設定
+                    if (0.0150000f >= Time.time - (notesManager.dataLists.LongMNT[i][0].notestime + GManager.instance.StartTime))
                     {
-                        gManager.MC = gManager.combo;
+                        GetComponent<AudioSource>().PlayOneShot(longhitSound);
+                        Debug.Log("Perfect");
+                        message(0);
+                        gManager.perfect++;
+                        gManager.combo++;
+
+                        if (gManager.MC < gManager.combo)//MaxComboを設定
+                        {
+                            gManager.MC = gManager.combo;
+                        }
+                        gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
+
+                        MEdeleteData(i);
                     }
-                    gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
-                    
-                    
-                    MEdeleteData(i);
                 }
+                
             }
             
         }
@@ -379,13 +383,14 @@ public class JudgeLong : MonoBehaviour
         if (notesManager.dataLists.QuadA[laneIndex].Count < 1) return;
         if (notesManager.dataLists.LongSMNT[laneIndex].Count < 1) return;
 
-        ChangeLayer(GetABS(Time.time - (notesManager.dataLists.LongSMNT[laneIndex][0] + GManager.instance.StartTime)), laneIndex,id);
+        ChangeLayer(Time.time - (notesManager.dataLists.LongSMNT[laneIndex][0] + GManager.instance.StartTime), laneIndex,id);
            
     }
 
     public void ChangeLayer(float timeLag, int laneindex, int id)//帯を見切れるようにする
     {
         if (timeLag > 0.15) return;
+        if (timeLag < 0.00f) return;
         isAdded[id] = true;
         if (touchStart.ContainsKey(key: id))
         {
@@ -419,7 +424,7 @@ public class JudgeLong : MonoBehaviour
         if (notesManager.dataLists.LongMNT[touchStart[id].endlane].Count < 1) return;//要素がなかったら帰る
         if (notesManager.dataLists.LongMNT[lane].Count < 1) return;//要素がなかったら帰る
 
-        MEjudgement(GetABS(Time.time - (notesManager.dataLists.LongMNT[touchStart[id].endlane][0].notestime + GManager.instance.StartTime)), GetABS(Time.time - (notesManager.dataLists.LongMNT[lane][0].notestime + GManager.instance.StartTime)), lane,id);//laneは帯の終点のレーン
+        MEjudgement(Time.time - (notesManager.dataLists.LongMNT[touchStart[id].endlane][0].notestime + GManager.instance.StartTime), lane,id);//laneは帯の終点のレーン
        
     }
 
@@ -429,8 +434,8 @@ public class JudgeLong : MonoBehaviour
 
 
         if (notesManager.dataLists.LongMNT[laneIndex].Count == 0) return;//要素がなかったら帰る
-
-        if (0.01500f >= GetABS(Time.time - (notesManager.dataLists.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)))//誤差を考慮 Ptimまで指が触れていたらperfectd
+        if (0.000f > Time.time - (notesManager.dataLists.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime)) return;
+        if (0.01500f >=Time.time - (notesManager.dataLists.LongMNT[laneIndex][0].notestime + GManager.instance.StartTime))//誤差を考慮 Ptimまで指が触れていたらperfectd
         {
             GetComponent<AudioSource>().PlayOneShot(longhitSound);
             Debug.Log("Perfect");
@@ -515,14 +520,15 @@ public class JudgeLong : MonoBehaviour
         
     }
 
-    public void MEjudgement(float timeLag,float touchLag, int Index,int id)
+    public void MEjudgement(float timeLag, int Index,int id)
     {
-        if (touchLag <= 0.15)
+        if (timeLag < 0.000f) return;
+        if (timeLag <= 0.15)
         {
             GetComponent<AudioSource>().PlayOneShot(longhitSound);
         }
         
-        if (touchLag <= 0.05)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.05秒以下だったら
+        if (timeLag <= 0.05)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.05秒以下だったら
         {
             Debug.Log("Perfect");
             message(0);
@@ -541,7 +547,7 @@ public class JudgeLong : MonoBehaviour
             return;
         }
         
-        if (touchLag <= 0.10)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.10秒以下だったら
+        if (timeLag <= 0.10)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.10秒以下だったら
         {
             Debug.Log("Great");
             message(1);
@@ -560,7 +566,7 @@ public class JudgeLong : MonoBehaviour
             return;
         }
            
-        if (touchLag <= 0.15)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.15秒以下だったら
+        if (timeLag <= 0.15)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.15秒以下だったら
         {
             Debug.Log("Bad");
             message(2);

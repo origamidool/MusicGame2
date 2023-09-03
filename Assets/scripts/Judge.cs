@@ -75,12 +75,15 @@ public class Judge : MonoBehaviour
 
         for (int i = 0; i < 7; i++)
         {
-            if (notesManager.NoteTime[i].Count < 1) continue;
-                
-            if (0.015000f >= GetABS(Time.time - (notesManager.NoteTime[i][0] + GManager.instance.StartTime)))
+            if (notesManager.NoteTime[i].Count > 0)
             {
-                Judgement(0, i);
+                if (0.015000f >= GetABS(Time.time - (notesManager.NoteTime[i][0] + GManager.instance.StartTime)))
+                {
+                    Judgement(0, i);
+                }
             }
+                
+            
         }
     }
 

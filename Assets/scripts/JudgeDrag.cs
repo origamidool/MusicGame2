@@ -18,6 +18,7 @@ public class JudgeDrag : MonoBehaviour
 
     void Update()
     {
+        if (!gManager.Start) return;//ゲームスタート
         SearchMiss();
         ProcessInput();
         AutoPlay();
@@ -27,13 +28,18 @@ public class JudgeDrag : MonoBehaviour
         if (!gManager.AutoPlay) return;
         for (int i = 0; i < 7; i++)
         {
-            if (notesManager.SrideTime[i].Count <= 0) continue;
-            if (0.000f > Time.time - (notesManager.SrideTime[i][0] + GManager.instance.StartTime)) continue;
-
-            if (0.01500f >= Time.time - (notesManager.SrideTime[i][0] + GManager.instance.StartTime))
+            if (notesManager.SrideTime[i].Count > 0)
             {
-                Check(i);
+                if (0.000f <= Time.time - (notesManager.SrideTime[i][0] + GManager.instance.StartTime)) continue;
+                {
+                    if (0.01500f >= Time.time - (notesManager.SrideTime[i][0] + GManager.instance.StartTime))
+                    {
+                        Check(i);
+                    }
+                }
             }
+
+           
         }
     }
     private void SearchMiss()
