@@ -76,20 +76,24 @@ public class JudgeLong : MonoBehaviour
     private void AutoPlay()
     {
         if (!gManager.AutoPlay) return;
-        if(!cL)
+        if (!cL)
         {
             cL = true;
             for(int i = 0; i < 7; i++)
             {
-                for(int j = 0; j < notesManager.dataLists.LongSMNT[i].Count; j++)
+                foreach (QuadInfo Quad in notesManager.dataLists.QuadA[i])
                 {
-                    notesManager.dataLists.QuadA[i][j].Quad.layer = 3;
+                    Quad.Quad.layer = 3;
                 }
+
             }
+
         }
 
-        for(int i = 0; i < 7; i++)
+        for (int i = 0; i < 7; i++)
         {
+            
+            
             if (notesManager.dataLists.StartL[i].Count >= 1)//始点
             {
                 if (0.020000f >= GetABS(Time.time - (notesManager.dataLists.StartL[i][0] + GManager.instance.StartTime)))
@@ -97,31 +101,35 @@ public class JudgeLong : MonoBehaviour
                     Judgement(0, i);
                 }
             }
-            if(notesManager.dataLists.LongMNT[i].Count > 0)//中間点，終点
+            for(int j = 0; j < notesManager.dataLists.LongMNT[i].Count; j++)
             {
-                if(0.00000f <= Time.time - (notesManager.dataLists.LongMNT[i][0].notestime + GManager.instance.StartTime))
-                {
-                    if (0.0150000f >= Time.time - (notesManager.dataLists.LongMNT[i][0].notestime + GManager.instance.StartTime))
-                    {
-                        GetComponent<AudioSource>().PlayOneShot(longhitSound);
-                        Debug.Log("Perfect");
-                        message(0);
-                        gManager.perfect++;
-                        gManager.combo++;
-
-                        if (gManager.MC < gManager.combo)//MaxComboを設定
-                        {
-                            gManager.MC = gManager.combo;
-                        }
-                        gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
-
-
-                        MEdeleteData(i);
-                    }
-                }
-                
+                AutoMiddle(i,j);
             }
             
+        }
+    }
+    private void AutoMiddle(int i,int j)
+    {
+        if (notesManager.dataLists.LongMNT[i].Count < 1) return; //中間点，終点
+        else if (0.00000f > Time.time - (notesManager.dataLists.LongMNT[i][j].notestime + GManager.instance.StartTime)) return;
+        else if (0.05f >= Time.time - (notesManager.dataLists.LongMNT[i][j].notestime + GManager.instance.StartTime))
+        {
+            GetComponent<AudioSource>().PlayOneShot(longhitSound);
+            Debug.Log("Perfect");
+
+
+            message(0);
+            gManager.perfect++;
+            gManager.combo++;
+
+            if (gManager.MC < gManager.combo)//MaxComboを設定
+            {
+                gManager.MC = gManager.combo;
+            }
+            gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
+
+
+            MEdeleteData(i,j);
         }
     }
 
@@ -370,7 +378,7 @@ public class JudgeLong : MonoBehaviour
         gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//小数点以下を四捨五入
 
         
-        MEdeleteData(LaneIndex);
+        MEdeleteData(LaneIndex,0);
         Debug.Log("Miss");
         gManager.miss++;
         gManager.combo = 0;
@@ -450,7 +458,7 @@ public class JudgeLong : MonoBehaviour
             gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
 
            
-            MEdeleteData(laneIndex);
+            MEdeleteData(laneIndex,0);
         }
     }
     
@@ -538,7 +546,7 @@ public class JudgeLong : MonoBehaviour
             gManager.perfect++;
             gManager.combo++;
             
-            MEdeleteData(Index);
+            MEdeleteData(Index,0);
             if (gManager.MC < gManager.combo)//MaxComboを設定
             {
                 gManager.MC = gManager.combo;
@@ -561,7 +569,7 @@ public class JudgeLong : MonoBehaviour
                 gManager.MC = gManager.combo;
             }
             gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
-            MEdeleteData(Index);
+            MEdeleteData(Index,0);
             
             return;
         }
@@ -580,7 +588,7 @@ public class JudgeLong : MonoBehaviour
                 gManager.MC = gManager.combo;
             }
             gManager.ratioScore = calculate.PhiScore(gManager.perfect, gManager.great, notesManager.noteNum, gManager.MC);//スコア計算
-            MEdeleteData(Index);
+            MEdeleteData(Index,0);
             
             return;
                 
@@ -636,14 +644,15 @@ public class JudgeLong : MonoBehaviour
        
     }
 
-    public void MEdeleteData(int LaneIndex)
+    public void MEdeleteData(int LaneIndex,int j)
     {
-       
-
         if (notesManager.dataLists.LongMNT[LaneIndex].Count < 1) return;
-        notesManager.dataLists.MEObj[LaneIndex][0].SetActive(false);
-        notesManager.dataLists.MEObj[LaneIndex].RemoveAt(0);
-        notesManager.dataLists.LongMNT[LaneIndex].RemoveAt(0);
+
+        notesManager.dataLists.MEObj[LaneIndex][j].SetActive(false);
+       
+        notesManager.dataLists.MEObj[LaneIndex].RemoveAt(j);
+
+        notesManager.dataLists.LongMNT[LaneIndex].RemoveAt(j);
 
     }
     public void DeleteME(int laneindex,int id)

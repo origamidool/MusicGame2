@@ -347,11 +347,11 @@ public class NotesManager : MonoBehaviour
 
 
             float Sample_z = (SampleLtime) * gManager.noteSpeed;
-            dataLists.StartObj[GetLevel(container, Level)[L[a]].block].Add(Instantiate(SampleLong, new Vector3(GetLevel(container, Level)[L[a]].block - 3, 0.55f, Sample_z), Quaternion.identity));
+            dataLists.StartObj[GetLevel(container, Level)[L[a]].block].Add(Instantiate(SampleLong, new Vector3(GetLevel(container, Level)[L[a]].block - 3, 0.60f, Sample_z), Quaternion.identity));
 
             Vector3[] upperVec3 = new Vector3[2];
-            upperVec3[0] = new Vector3(GetLevel(container, Level)[L[a]].block - 3.5f, 0.55f, Sample_z);
-            upperVec3[1] = new Vector3(GetLevel(container, Level)[L[a]].block - 2.5f, 0.55f, Sample_z);
+            upperVec3[0] = new Vector3(GetLevel(container, Level)[L[a]].block - 3.5f, 0.52f, Sample_z);
+            upperVec3[1] = new Vector3(GetLevel(container, Level)[L[a]].block - 2.5f, 0.52f, Sample_z);
 
             if (a == 0)
             {
@@ -369,7 +369,7 @@ public class NotesManager : MonoBehaviour
             {
                 index += 1;
                 Vector3[] lowerVec3 = new Vector3[2];
-
+                
 
                 float Middlekankaku = 60 / (container.bpm * (float)GetLevel(container, Level)[L[a]].notes[i].lpb);
                 float Middletime = Middlekankaku * GetLevel(container, Level)[L[a]].notes[i].num + container.offset / 44100 + tapLag / 100 + gManager.grace;
@@ -378,10 +378,15 @@ public class NotesManager : MonoBehaviour
                 Middletimes[i] = Middletime;
 
                 float Middle_z = (Middletime) * gManager.noteSpeed;
-                dataLists.MEObj[GetLevel(container, Level)[L[a]].notes[i].block].Add(Instantiate(SampleLong, new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 3, 0.55f, Middle_z), Quaternion.identity));
 
-                lowerVec3[0] = new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
-                lowerVec3[1] = new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
+                dataLists.MEObj[GetLevel(container, Level)[L[a]].notes[i].block].Add(Instantiate(SampleLong, new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 3, 0.58f, Middle_z), Quaternion.identity));
+
+                if (L[a] == 31)
+                {
+                    if(i == 0)  Debug.Log("31 ?=" + GetLevel(container, Level)[L[a]].notes[i].block);
+                }
+                lowerVec3[0] = new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 3.5f, 0.52f, Middle_z);//帯の左端
+                lowerVec3[1] = new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 2.5f, 0.52f, Middle_z);//帯の右端
 
                 Vector3[] lineVerticesVec3 = new Vector3[4];
 
@@ -431,12 +436,12 @@ public class NotesManager : MonoBehaviour
                 triangles[5] = 1;
                 mesh.SetTriangles(triangles, 0);
 
-                lineObj.GetComponent<MeshFilter>().mesh = mesh;
+                lineObj.GetComponent<MeshFilter>().mesh = mesh;//メッシュを渡す
 
-                upperVec3[0] = new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 3.5f, 0.55f, Middle_z);
-                upperVec3[1] = new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 2.5f, 0.55f, Middle_z);
+                upperVec3[0] = new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 3.5f, 0.52f, Middle_z);
+                upperVec3[1] = new Vector3(GetLevel(container, Level)[L[a]].notes[i].block - 2.5f, 0.52f, Middle_z);
 
-
+              
             }
 
         }
