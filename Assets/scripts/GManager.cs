@@ -32,12 +32,14 @@ public class GManager : MonoBehaviour
     public bool AutoPlay = false;//オートプレイか通常プレイか
     public int LaneLength = 7;//最大レーン　変わらないと思われるが
     public int Level;//譜面の難易度
+
+    public float Ptim;
+    public float Gtim;
+    public float Btim;
     
 
     public void Awake()
     {
-        
-
         if (instance == null)
         {
             instance = this;

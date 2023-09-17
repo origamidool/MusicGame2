@@ -22,9 +22,11 @@ public class Judge : MonoBehaviour
     public GManager gManager;
 
     public Camera raycastCamera;
-
-   
     public float RawScore;
+
+    float Ptim;
+    float Gtim;
+    float Btim;
 
     //変数の宣言
     [SerializeField] public GameObject[] MessageObj;//プレイヤーに判定を伝えるゲームオブジェクト
@@ -41,6 +43,9 @@ public class Judge : MonoBehaviour
     void Start()
     {
         audio = GetComponent<AudioSource>();
+        Ptim = gManager.Ptim;
+        Gtim = gManager.Gtim;
+        Btim = gManager.Btim;
     }
 
     public Light light;
@@ -55,7 +60,7 @@ public class Judge : MonoBehaviour
 
         for (int i = 0; i < notesManager.NoteTime.Length; i++)//miss
         {
-            if (notesManager.NoteTime[i].Count > 0 && Time.time > notesManager.NoteTime[i][0] + 0.15f + gManager.StartTime)
+            if (notesManager.NoteTime[i].Count > 0 && Time.time > notesManager.NoteTime[i][0] + Btim + gManager.StartTime)
             {
                 HandleMiss(i);
             }
@@ -171,9 +176,9 @@ public class Judge : MonoBehaviour
 
     public void Judgement(float timeLag, int lane)
     {
-        if (timeLag >= 0.15) return;
+        if (timeLag >= Btim) return;
         audio.PlayOneShot(hitSound);
-        if (timeLag <= 0.05)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.1秒以下だったら
+        if (timeLag <= Ptim)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.1秒以下だったら
         {
             Debug.Log("Perfect");
             message(0);
@@ -191,7 +196,7 @@ public class Judge : MonoBehaviour
             return;
         }
        
-        if (timeLag <= 0.10)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.15秒以下だったら
+        if (timeLag <= Gtim)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.15秒以下だったら
         {
             Debug.Log("Great");
             message(1);
@@ -209,7 +214,7 @@ public class Judge : MonoBehaviour
             return;
         }
            
-        if (timeLag <= 0.15)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.2秒以下だったら
+        if (timeLag <= Btim)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が0.2秒以下だったら
         {
             Debug.Log("Bad");
             message(2);

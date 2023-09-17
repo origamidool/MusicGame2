@@ -18,7 +18,7 @@ TagManager:
   - IfTouchLong
   - Water
   - UI
-  - 
+  - Notes
   - 
   - 
   - 
@@ -47,4 +47,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Notes
+    uniqueID: 315789959
     locked: 0
